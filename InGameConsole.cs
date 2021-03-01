@@ -26,7 +26,7 @@ namespace InGameDebugger {
 
 				gameObject.AddComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
 
-				var font = Font.CreateDynamicFontFromOSFont("Arial", 50);
+				var font = ViewerCreater.font;
 
 				var thisR = GetComponent<RectTransform>();
 				thisR.anchorMin = new Vector2(0.5f, 0);
@@ -64,7 +64,7 @@ namespace InGameDebugger {
 				var output = Instantiate(codeInput, transform);
 				output.name = "Output";
 				outputT = output.GetComponentInChildren<Text>();
-				outputT.text = "输出";
+				outputT.text = "Output";
 				var outputR = output.GetComponent<RectTransform>();
 				outputR.anchorMin = Vector2.up;
 				outputR.anchorMax = Vector2.one;
@@ -99,10 +99,8 @@ namespace InGameDebugger {
 						}
 						object result = null;
 						method.Invoke(ref result);
-						//Debug.Log(evaluator.Evaluate(str, out object result, out bool resultSet));
-						//var method = evaluator.Run(str);
 						if (result == null) {
-							result = "完成";
+							result = "Done";
 						}
 						outputT.text = $"{str}\n<color=#00aa00ff>{result}</color>";
 					} catch (Exception e) {

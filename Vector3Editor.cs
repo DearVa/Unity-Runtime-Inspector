@@ -31,7 +31,7 @@ namespace InGameDebugger {
 			inputText.AddComponent<SceneViewerFlag>();
 			inputText.transform.SetParent(xInput.transform);
 			var inputTextT = inputText.AddComponent<Text>();
-			inputTextT.font = Font.CreateDynamicFontFromOSFont("Arial", 50);
+			inputTextT.font = ViewerCreater.font;
 			inputTextT.fontSize = fontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;

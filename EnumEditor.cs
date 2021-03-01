@@ -21,7 +21,7 @@ namespace InGameDebugger {
 				gameObject.AddComponent<SceneViewerFlag>();
 			}
 
-			var font = Font.CreateDynamicFontFromOSFont("Arial", 50);
+			var font = ViewerCreater.font;
 
 			var drop = new GameObject("DropDown");
 			drop.AddComponent<SceneViewerFlag>();

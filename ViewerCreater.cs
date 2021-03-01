@@ -7,11 +7,13 @@ using UnityEngine.SceneManagement;
 
 namespace InGameDebugger {
 	public class ViewerCreater : MonoBehaviour {
-		public static ViewerCreater Instance;
-		public GameObject viewerCanvas;
-		public Font font;
+		public static Font font;
+
+		private const float topBtnWidth = 150f, topBtnHeight = 50f;
+		private const int topBtnFontSize = 30;
 
 		private static GameObject creater;
+		private GameObject viewerCanvas;
 		private float timeScale;
 		private bool paused;
 
@@ -21,7 +23,6 @@ namespace InGameDebugger {
 					creater = new GameObject("[SceneViewer]");
 					creater.transform.SetAsFirstSibling();
 					creater.AddComponent<SceneViewerFlag>();
-					Instance = creater.AddComponent<ViewerCreater>();
 				}
 			} catch (Exception e) {
 				Utils.MessageBoxError(e.ToString(), "Error in Create");
@@ -51,12 +52,12 @@ namespace InGameDebugger {
 				panel.AddComponent<SceneViewerFlag>();
 				panel.transform.SetParent(viewerCanvas.transform);
 				var panelR = panel.AddComponent<RectTransform>();
-				panelR.anchorMin = new Vector2(0, 1);
-				panelR.anchorMax = new Vector2(0, 1);
+				panelR.anchorMin = new Vector2(0, 0);
+				panelR.anchorMax = new Vector2(1, 1);
 				panelR.pivot = new Vector2(0, 1);
-				panelR.anchoredPosition = new Vector2(0, -100);
+				panelR.anchoredPosition = new Vector2(0, -topBtnHeight);
 				panelR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				panelR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
+				panelR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - topBtnHeight);
 				panel.SetActive(false);
 				panel.AddComponent<SceneViewer>();
 
@@ -70,22 +71,22 @@ namespace InGameDebugger {
 				closeBtnR.anchorMax = new Vector2(0, 1);
 				closeBtnR.pivot = new Vector2(0, 1);
 				closeBtnR.anchoredPosition = Vector2.zero;
-				closeBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+				closeBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 				closeText.AddComponent<SceneViewerFlag>();
 				closeText.transform.SetParent(closeBtn.transform);
 				var closeTextT = closeText.AddComponent<Text>();
 				closeBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
 					panel.SetActive(!panel.activeSelf);
-					closeTextT.text = panel.activeSelf ? "隐藏浏览器" : "显示浏览器";
+					closeTextT.text = panel.activeSelf ? "Hide" : "Show";
 				}));
 
-				closeTextT.text = "显示浏览器";
+				closeTextT.text = "Show";
 				closeTextT.font = font;
-				closeTextT.fontSize = 50;
+				closeTextT.fontSize = topBtnFontSize;
 				closeTextT.color = Color.black;
 				closeTextT.alignment = TextAnchor.MiddleCenter;
 				closeText.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				closeText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+				closeText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 
 				var pauseBtn = new GameObject("PauseBtn");
 				var pauseText = new GameObject("PauseText");
@@ -96,25 +97,25 @@ namespace InGameDebugger {
 				pauseBtnR.anchorMin = new Vector2(0, 1);
 				pauseBtnR.anchorMax = new Vector2(0, 1);
 				pauseBtnR.pivot = new Vector2(0, 1);
-				pauseBtnR.anchoredPosition = new Vector2(350, 0);
-				pauseBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200);
+				pauseBtnR.anchoredPosition = new Vector2(topBtnWidth * 1.1f, 0);
+				pauseBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 				pauseText.AddComponent<SceneViewerFlag>();
 				pauseText.transform.SetParent(pauseBtn.transform);
 				var pauseTextT = pauseText.AddComponent<Text>();
 
-				pauseTextT.text = "暂停";
+				pauseTextT.text = "Pause";
 				pauseTextT.font = font;
-				pauseTextT.fontSize = 50;
+				pauseTextT.fontSize = topBtnFontSize;
 				pauseTextT.color = Color.black;
 				pauseTextT.alignment = TextAnchor.MiddleCenter;
-				var psuseTextR = pauseText.GetComponent<RectTransform>();
-				psuseTextR.anchoredPosition = Vector2.zero;
-				psuseTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 200);
+				var pauseTextR = pauseText.GetComponent<RectTransform>();
+				pauseTextR.anchoredPosition = Vector2.zero;
+				pauseTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 
-				var moreBtn = Instantiate(pauseBtn, viewerCanvas.transform);
-				moreBtn.name = "MoreBtn";
-				moreBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(600, 0);
-				moreBtn.GetComponentInChildren<Text>().text = "控制台";
+				var consoleBtn = Instantiate(pauseBtn, viewerCanvas.transform);
+				consoleBtn.name = "ConsoleBtn";
+				consoleBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(topBtnWidth * 2.2f, 0);
+				consoleBtn.GetComponentInChildren<Text>().text = "Console";
 
 				var console = new GameObject("Console");
 				console.transform.SetParent(viewerCanvas.transform);
@@ -129,11 +130,11 @@ namespace InGameDebugger {
 					} else {
 						Time.timeScale = timeScale;
 					}
-					pauseTextT.text = paused ? "播放" : "暂停";
+					pauseTextT.text = paused ? "Resume" : "Pause";
 				}));
-				moreBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
+				consoleBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
 					console.SetActive(!console.activeSelf);
-					moreBtn.GetComponentInChildren<Text>().text = console.activeSelf ? "关闭" : "控制台";
+					consoleBtn.GetComponentInChildren<Text>().text = console.activeSelf ? "Close" : "Console";
 				}));
 			} catch (Exception e) {
 				Utils.MessageBoxError(e.ToString(), "Error in ViewerCreater Start");

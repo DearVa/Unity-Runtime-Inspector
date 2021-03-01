@@ -26,7 +26,7 @@ namespace InGameDebugger {
 			checkText.AddComponent<SceneViewerFlag>();
 			checkText.transform.SetParent(check.transform);
 			var checkTextT = checkText.AddComponent<Text>();
-			checkTextT.font = Font.CreateDynamicFontFromOSFont("Arial", 50);
+			checkTextT.font = ViewerCreater.font;
 			checkTextT.fontSize = fontSize;
 			checkTextT.supportRichText = false;
 			checkTextT.color = Color.black;

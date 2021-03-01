@@ -6,29 +6,25 @@ using UnityEngine.EventSystems;
 
 namespace InGameDebugger {
 
-	public class IntEditor : MonoBehaviour {
+	public class StringEditor : MonoBehaviour {
 		public float size;
 		public int fontSize;
-		public Func<int> get;
-		public Action<int> set;
-		public float minimum;
-		public float maximum;
+		public Func<string> get;
+		public Action<string> set;
 
 		private GameObject input;
-		private float begin;
 		private bool editing;
-		private float value;
 
 		void Start() {
 			if (GetComponent<SceneViewerFlag>() == null) {
 				gameObject.AddComponent<SceneViewerFlag>();
 			}
 
-			input = new GameObject("IntInput");
+			input = new GameObject("FloatInput");
 			input.AddComponent<SceneViewerFlag>();
 			input.transform.SetParent(transform);
 
-			var inputText = new GameObject("IntInputText");
+			var inputText = new GameObject("FloatInputText");
 			inputText.AddComponent<SceneViewerFlag>();
 			inputText.transform.SetParent(input.transform);
 			var inputTextT = inputText.AddComponent<Text>();
@@ -54,39 +50,17 @@ namespace InGameDebugger {
 			};
 			down.callback.AddListener((data) => {
 				editing = true;
-				begin = data.currentInputModule.input.mousePosition.x;
 			});
 			input.AddComponent<EventTrigger>().triggers.Add(down);
-			var drag = new EventTrigger.Entry() {
-				eventID = EventTriggerType.Drag
-			};
-			drag.callback.AddListener((data) => {
-				value = get() + (data.currentInputModule.input.mousePosition.x - begin) / 10;
-				if (value < minimum) {
-					value = minimum;
-				} else if (value > maximum) {
-					value = maximum;
-				}
-				begin = data.currentInputModule.input.mousePosition.x;
-				set((int)value);
-				input.GetComponent<InputField>().text = get().ToString();
-			});
-			input.GetComponent<EventTrigger>().triggers.Add(drag);
 			inputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
 				editing = false;
-				value = float.Parse(str);
-				if (value < minimum) {
-					value = minimum;
-				} else if (value > maximum) {
-					value = maximum;
-				}
-				set((int)value);
+				set(str);
 			}));
 		}
 
 		void Update() {
 			if (!editing) {
-				input.GetComponent<InputField>().text = get().ToString();
+				input.GetComponent<InputField>().text = get();
 			}
 		}
 	}

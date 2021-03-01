@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 
 namespace InGameDebugger {
 	public class SceneViewer : MonoBehaviour {
-		public Font font;
-		public List<EditGameObject> editGameObjects = new List<EditGameObject>();
+		private Font font;
+		private readonly List<EditGameObject> editGameObjects = new List<EditGameObject>();
 		private GameObject[] editLines;
 		private GameObject inspectorObj;
 
@@ -29,54 +29,56 @@ namespace InGameDebugger {
 		private MeshViewer meshViewer;
 		private AudioSource mAudioSource;
 
-		public float size = 40f;
-		public int fontSize = 25;
+		private const float size = 40f, topBtnWidth = 150f, topBtnHeight = 50f;
+		private const int fontSize = 25, topBtnFontSize = 30;
 		private bool find;
 		private float offset;
 		private GameObject comBtn;
 
 		private void Start() {
 			try {
-				font = Font.CreateDynamicFontFromOSFont("Arial", 50);
+				font = ViewerCreater.font;
 
 				topPanel = new GameObject("TopPanel");
 				topPanel.AddComponent<SceneViewerFlag>();
 				topPanel.transform.SetParent(transform);
-				topPanel.AddComponent<Image>();
-				topPanel.GetComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.7f);
-				topPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
-				topPanel.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				topPanel.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				topPanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(300, 100);
-				topPanel.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - 300);
+				topPanel.AddComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.7f);
+				var topPanelR = topPanel.GetComponent<RectTransform>();
+				topPanelR.anchorMin = new Vector2(0, 1);
+				topPanelR.anchorMax = Vector2.one;
+				topPanelR.pivot = new Vector2(0, 1);
+				topPanelR.anchoredPosition = new Vector2(0, topBtnHeight);
+				topPanelR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
 
 				refreshBtn = new GameObject("RefreshBtn");
 				refreshBtn.AddComponent<SceneViewerFlag>();
 				refreshBtn.transform.SetParent(topPanel.transform);
 				refreshBtn.AddComponent<Image>();
 				refreshBtn.AddComponent<Button>();
-				refreshBtn.GetComponent<RectTransform>().anchorMin = Vector2.one;
-				refreshBtn.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				refreshBtn.GetComponent<RectTransform>().pivot = Vector2.one;
-				refreshBtn.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				refreshBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150);
+				var refreshBtnR = refreshBtn.GetComponent<RectTransform>();
+				refreshBtnR.anchorMin = Vector2.one;
+				refreshBtnR.anchorMax = Vector2.one;
+				refreshBtnR.pivot = Vector2.one;
+				refreshBtnR.anchoredPosition = Vector2.zero;
+				refreshBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 
 				var refreshText = new GameObject("RefreshText");
 				refreshText.AddComponent<SceneViewerFlag>();
 				refreshText.transform.SetParent(refreshBtn.transform);
-				refreshText.AddComponent<Text>();
-				refreshText.GetComponent<Text>().text = "刷新";
-				refreshText.GetComponent<Text>().font = font;
-				refreshText.GetComponent<Text>().fontSize = 50;
-				refreshText.GetComponent<Text>().color = Color.black;
-				refreshText.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
-				refreshText.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				refreshText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150);
+				var refreshTextT = refreshText.AddComponent<Text>();
+				refreshTextT.text = "Refresh";
+				refreshTextT.font = font;
+				refreshTextT.fontSize = topBtnFontSize;
+				refreshTextT.color = Color.black;
+				refreshTextT.alignment = TextAnchor.MiddleCenter;
+				var refreshTextR = refreshText.GetComponent<RectTransform>();
+				refreshTextR.anchoredPosition = Vector2.zero;
+				refreshTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 
 				var findBtn = Instantiate(refreshBtn, topPanel.transform);
 				findBtn.name = "FindBtn";
-				findBtn.GetComponentInChildren<Text>().text = "捕捉";
-				findBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(-160, 0);
+				findBtn.GetComponentInChildren<Text>().text = "Capture";
+				findBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(-topBtnWidth * 1.1f, 0);
 				findBtn.GetComponent<Button>().onClick.AddListener(new UnityAction(() => {
 					scrollViewH.SetActive(false);
 					find = true;
@@ -86,57 +88,57 @@ namespace InGameDebugger {
 				scrollViewH = new GameObject("ScrollViewH");
 				scrollViewH.AddComponent<SceneViewerFlag>();
 				scrollViewH.transform.SetParent(transform);
-				scrollViewH.AddComponent<Image>();
-				scrollViewH.GetComponent<Image>().color = new Color(1, 1, 1, 0);
-				scrollViewH.GetComponent<RectTransform>().anchorMin = Vector2.zero;
-				scrollViewH.GetComponent<RectTransform>().anchorMax = new Vector2(1, 0);
-				scrollViewH.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
-				scrollViewH.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				scrollViewH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				scrollViewH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
-				scrollViewH.AddComponent<ScrollRect>().onValueChanged.AddListener((_) => {
+				var scrollViewHR = scrollViewH.AddComponent<RectTransform>();
+				scrollViewHR.anchorMin = Vector2.zero;
+				scrollViewHR.anchorMax = Vector3.one;
+				scrollViewHR.pivot = new Vector2(0.5f, 0);
+				scrollViewHR.anchoredPosition = Vector2.zero;
+				scrollViewHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				scrollViewHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
+				var scrollViewHS = scrollViewH.AddComponent<ScrollRect>();
+				scrollViewHS.onValueChanged.AddListener((_) => {
 					RefreshView();
 				});
-				scrollViewH.GetComponent<ScrollRect>().movementType = ScrollRect.MovementType.Clamped;
-				scrollViewH.GetComponent<ScrollRect>().decelerationRate = 0.5f;
+				scrollViewHS.movementType = ScrollRect.MovementType.Clamped;
+				scrollViewHS.decelerationRate = 0.5f;
 
 				viewportH = new GameObject("ViewportH");
 				viewportH.AddComponent<SceneViewerFlag>();
 				viewportH.transform.SetParent(scrollViewH.transform);
-				viewportH.AddComponent<Image>();
-				viewportH.GetComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.5f);
-				viewportH.GetComponent<RectTransform>().anchorMin = Vector2.zero;
-				viewportH.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				viewportH.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				viewportH.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				viewportH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				viewportH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
+				viewportH.AddComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.5f);
+				var viewportHR = viewportH.GetComponent<RectTransform>();
+				viewportHR.anchorMin = Vector2.zero;
+				viewportHR.anchorMax = Vector2.one;
+				viewportHR.pivot = new Vector2(0, 1);
+				viewportHR.anchoredPosition = Vector2.zero;
+				viewportHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				viewportHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
 				viewportH.AddComponent<Mask>();
 
 				contentH = new GameObject("ContentH");
 				contentH.AddComponent<SceneViewerFlag>();
 				contentH.transform.SetParent(viewportH.transform);
-				contentH.AddComponent<RectTransform>();
-				contentH.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
-				contentH.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				contentH.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				contentH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				scrollViewH.GetComponent<ScrollRect>().viewport = viewportH.GetComponent<RectTransform>();
-				scrollViewH.GetComponent<ScrollRect>().content = contentH.GetComponent<RectTransform>();
+				var contentHR = contentH.AddComponent<RectTransform>();
+				contentHR.anchorMin = new Vector2(0, 1);
+				contentHR.anchorMax = Vector2.one;
+				contentHR.pivot = new Vector2(0, 1);
+				contentHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				scrollViewHS.viewport = viewportH.GetComponent<RectTransform>();
+				scrollViewHS.content = contentH.GetComponent<RectTransform>();
 
 				scrollViewI = new GameObject("ScrollViewI");
 				scrollViewI.AddComponent<SceneViewerFlag>();
 				scrollViewI.transform.SetParent(transform);
-				scrollViewI.AddComponent<Image>();
-				scrollViewI.GetComponent<Image>().color = new Color(1, 1, 1, 0);
-				scrollViewI.GetComponent<RectTransform>().anchorMin = Vector2.zero;
-				scrollViewI.GetComponent<RectTransform>().anchorMax = new Vector2(1, 0);
-				scrollViewI.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
-				scrollViewI.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				scrollViewI.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				scrollViewI.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
-				scrollViewI.AddComponent<ScrollRect>().movementType = ScrollRect.MovementType.Clamped;
-				scrollViewI.GetComponent<ScrollRect>().decelerationRate = 0.5f;
+				var scrollViewIR = scrollViewI.AddComponent<RectTransform>();
+				scrollViewIR.anchorMin = Vector2.zero;
+				scrollViewIR.anchorMax = new Vector2(1, 0);
+				scrollViewIR.pivot = new Vector2(0.5f, 0);
+				scrollViewIR.anchoredPosition = Vector2.zero;
+				scrollViewIR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				scrollViewIR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
+				var scrollViewIS = scrollViewI.AddComponent<ScrollRect>();
+				scrollViewIS.movementType = ScrollRect.MovementType.Clamped;
+				scrollViewIS.decelerationRate = 0.5f;
 
 				scrollViewI.SetActive(false);
 
@@ -145,45 +147,47 @@ namespace InGameDebugger {
 				viewportI.transform.SetParent(scrollViewI.transform);
 				viewportI.AddComponent<Image>();
 				viewportI.GetComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.5f);
-				viewportI.GetComponent<RectTransform>().anchorMin = Vector2.zero;
-				viewportI.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				viewportI.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				viewportI.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				viewportI.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				viewportI.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
+				var viewportIR = viewportI.GetComponent<RectTransform>();
+				viewportIR.anchorMin = Vector2.zero;
+				viewportIR.anchorMax = Vector2.one;
+				viewportIR.pivot = new Vector2(0, 1);
+				viewportIR.anchoredPosition = Vector2.zero;
+				viewportIR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				viewportIR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
 				viewportI.AddComponent<Mask>();
 
 				contentI = new GameObject("ContentI");
 				contentI.AddComponent<SceneViewerFlag>();
 				contentI.transform.SetParent(viewportI.transform);
-				contentI.AddComponent<RectTransform>();
-				contentI.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
-				contentI.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				contentI.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				contentI.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				scrollViewI.GetComponent<ScrollRect>().viewport = viewportI.GetComponent<RectTransform>();
-				scrollViewI.GetComponent<ScrollRect>().content = contentI.GetComponent<RectTransform>();
+				var contentIR = contentI.AddComponent<RectTransform>();
+				contentIR.anchorMin = new Vector2(0, 1);
+				contentIR.anchorMax = Vector2.one;
+				contentIR.pivot = new Vector2(0, 1);
+				contentIR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
+				scrollViewIS.viewport = viewportI.GetComponent<RectTransform>();
+				scrollViewIS.content = contentI.GetComponent<RectTransform>();
 
 				backBtn = new GameObject("BackBtn");
 				backBtn.AddComponent<SceneViewerFlag>();
 				backBtn.transform.SetParent(scrollViewI.transform);
 				backBtn.AddComponent<Image>();
 				backBtn.AddComponent<Button>();
-				backBtn.GetComponent<RectTransform>().anchorMin = Vector2.one;
-				backBtn.GetComponent<RectTransform>().anchorMax = Vector2.one;
-				backBtn.GetComponent<RectTransform>().pivot = Vector2.one;
-				backBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 100);
-				backBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 310);
+				var backBtnR = backBtn.GetComponent<RectTransform>();
+				backBtnR.anchorMin = Vector2.one;
+				backBtnR.anchorMax = Vector2.one;
+				backBtnR.pivot = Vector2.one;
+				backBtnR.anchoredPosition = new Vector2(0, 100);
+				backBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 310);
 
 				var backText = new GameObject("BackText");
 				backText.AddComponent<SceneViewerFlag>();
 				backText.transform.SetParent(backBtn.transform);
-				backText.AddComponent<Text>();
-				backText.GetComponent<Text>().text = "返回";
-				backText.GetComponent<Text>().font = font;
-				backText.GetComponent<Text>().fontSize = 50;
-				backText.GetComponent<Text>().color = Color.black;
-				backText.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
+				var backTextT = backText.AddComponent<Text>();
+				backTextT.text = "Back";
+				backTextT.font = font;
+				backTextT.fontSize = topBtnFontSize;
+				backTextT.color = Color.black;
+				backTextT.alignment = TextAnchor.MiddleCenter;
 				backText.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 				backText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 310);
 				backBtn.GetComponent<Button>().onClick.AddListener(() => {
@@ -402,6 +406,24 @@ namespace InGameDebugger {
 			AddIntEditor(parent, get, set, float.NegativeInfinity, float.PositiveInfinity);
 		}
 
+		void AddStringEditor(GameObject parent, Func<string> get, Action<string> set) {
+			var stringEditor = new GameObject($"{parent.name} Editor");
+			stringEditor.transform.SetParent(parent.transform);
+			var stringR = stringEditor.AddComponent<RectTransform>();
+			stringR.anchorMin = Vector2.one;
+			stringR.anchorMax = Vector2.one;
+			stringR.pivot = Vector2.one;
+			stringR.anchoredPosition = new Vector2(-20, 0);
+			stringR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
+			stringR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			var stringV = stringEditor.AddComponent<StringEditor>();
+			stringV.size = size;
+			stringV.fontSize = fontSize;
+			stringV.get = get;
+			stringV.set = set;
+			offset -= size * 1.2f;
+		}
+
 		void AddButton(GameObject parent, Func<string> get, Action onClick) {
 			var button = new GameObject($"{parent.name} Button");
 			button.transform.SetParent(parent.transform);
@@ -571,6 +593,12 @@ namespace InGameDebugger {
 								AddVector3Editor(propText, () => (Vector3)prop.GetValue(com), v3 => prop.SetValue(com, v3));
 							} else if (prop.PropertyType == typeof(bool)) {
 								AddBoolEditor(propText, () => (bool)prop.GetValue(com), b => prop.SetValue(com, b));
+							} else if (prop.PropertyType == typeof(float)) {
+								AddFloatEditor(propText, () => (float)prop.GetValue(com), f => prop.SetValue(com, f));
+							} else if (prop.PropertyType == typeof(int)) {
+								AddIntEditor(propText, () => (int)prop.GetValue(com), i => prop.SetValue(com, i));
+							} else if (prop.PropertyType == typeof(string)) {
+								AddStringEditor(propText, () => (string)prop.GetValue(com), s => prop.SetValue(com, s));
 							} else if (prop.PropertyType.IsEnum) {
 								AddEnumEditor(propText, prop.PropertyType, () => (int)prop.GetValue(com), i => prop.SetValue(com, i));
 							} else {
@@ -580,21 +608,6 @@ namespace InGameDebugger {
 									} catch { }
 									return "Error";
 								}, null);
-								//var valueEditor = new GameObject($"{name} Editor");
-								//valueEditor.transform.SetParent(propText.transform);
-								//var valueR = valueEditor.AddComponent<RectTransform>();
-								//valueR.anchorMin = Vector2.one;
-								//valueR.anchorMax = Vector2.one;
-								//valueR.pivot = Vector2.one;
-								//valueR.anchoredPosition = new Vector2(-20, 0);
-								//valueR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-								//valueR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
-								//var valueV = valueEditor.AddComponent<FloatEditor>();
-								//valueV.size = size;
-								//valueV.fontSize = fontSize;
-								//valueV.component = com;
-								//valueV.propInfo = prop;
-								//offset -= size * 1.2f;
 							}
 						} catch { }
 					}
