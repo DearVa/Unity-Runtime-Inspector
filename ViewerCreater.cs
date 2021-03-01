@@ -23,6 +23,7 @@ namespace InGameDebugger {
 					creater = new GameObject("[SceneViewer]");
 					creater.transform.SetAsFirstSibling();
 					creater.AddComponent<SceneViewerFlag>();
+					creater.AddComponent<ViewerCreater>();
 				}
 			} catch (Exception e) {
 				Utils.MessageBoxError(e.ToString(), "Error in Create");
