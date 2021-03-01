@@ -50,7 +50,7 @@ namespace InGameDebugger {
 				var panel = new GameObject("Panel");
 				panel.AddComponent<SceneViewerFlag>();
 				panel.transform.SetParent(viewerCanvas.transform);
-				var panelR = panel.GetComponent<RectTransform>();
+				var panelR = panel.AddComponent<RectTransform>();
 				panelR.anchorMin = new Vector2(0, 1);
 				panelR.anchorMax = new Vector2(0, 1);
 				panelR.pivot = new Vector2(0, 1);
