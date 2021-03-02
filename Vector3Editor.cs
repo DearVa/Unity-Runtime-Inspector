@@ -8,8 +8,6 @@ using System.Reflection;
 namespace InGameDebugger {
 
 	public class Vector3Editor : MonoBehaviour {
-		public float size;
-		public int fontSize;
 		public Func<Vector3> get;
 		public Action<Vector3> set;
 
@@ -32,20 +30,20 @@ namespace InGameDebugger {
 			inputText.transform.SetParent(xInput.transform);
 			var inputTextT = inputText.AddComponent<Text>();
 			inputTextT.font = ViewerCreater.font;
-			inputTextT.fontSize = fontSize;
+			inputTextT.fontSize = ViewerCreater.fontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;
 			inputTextT.alignment = TextAnchor.MiddleCenter;
 			var inputTextR = inputText.GetComponent<RectTransform>();
 			inputTextR.anchoredPosition = Vector2.zero;
-			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 
 			xInput.AddComponent<Image>();
 			var inputR = xInput.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			inputR.anchoredPosition = new Vector2(0, size);
+			inputR.anchoredPosition = new Vector2(0, ViewerCreater.size);
 			xInputI = xInput.AddComponent<InputField>();
 			xInputI.textComponent = inputTextT;
 			xInputI.keyboardType = TouchScreenKeyboardType.NumbersAndPunctuation;
@@ -104,7 +102,7 @@ namespace InGameDebugger {
 
 			var zInput = Instantiate(xInput, transform);
 			zInput.name = "ZInput";
-			zInput.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -size);
+			zInput.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -ViewerCreater.size);
 			var zDown = new EventTrigger.Entry() {
 				eventID = EventTriggerType.PointerDown
 			};

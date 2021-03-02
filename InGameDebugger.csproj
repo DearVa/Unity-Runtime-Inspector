@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net45</TargetFramework>
     <Authors>Dear.Va</Authors>
     <Company>Dear.Va's Studio</Company>
     <AssemblyName>InGameDebugger</AssemblyName>
     <RootNamespace>InGameDebugger</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath></OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

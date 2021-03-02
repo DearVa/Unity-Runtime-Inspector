@@ -9,8 +9,8 @@ namespace InGameDebugger {
 	public class ViewerCreater : MonoBehaviour {
 		public static Font font;
 
-		private const float topBtnWidth = 150f, topBtnHeight = 50f;
-		private const int topBtnFontSize = 30;
+		public readonly static float size = 40f, topBtnWidth = 150f, topBtnHeight = 50f;
+		public readonly static int fontSize = 25, topBtnFontSize = 30;
 
 		private static GameObject creater;
 		private GameObject viewerCanvas;
@@ -26,7 +26,7 @@ namespace InGameDebugger {
 					creater.AddComponent<ViewerCreater>();
 				}
 			} catch (Exception e) {
-				Utils.MessageBoxError(e.ToString(), "Error in Create");
+				Utils.LogError(e.ToString(), "Error in Create");
 			}
 		}
 
@@ -120,7 +120,7 @@ namespace InGameDebugger {
 
 				var console = new GameObject("Console");
 				console.transform.SetParent(viewerCanvas.transform);
-				console.AddComponent<InGameConsole>().size = 80f;
+				console.AddComponent<InGameConsole>();
 				console.SetActive(false);
 
 				pauseBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
@@ -138,7 +138,7 @@ namespace InGameDebugger {
 					consoleBtn.GetComponentInChildren<Text>().text = console.activeSelf ? "Close" : "Console";
 				}));
 			} catch (Exception e) {
-				Utils.MessageBoxError(e.ToString(), "Error in ViewerCreater Start");
+				Utils.LogError(e.ToString(), "Error in ViewerCreater Start");
 			}
 		}
 	}

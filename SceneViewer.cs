@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 
 namespace InGameDebugger {
 	public class SceneViewer : MonoBehaviour {
-		private Font font;
 		private readonly List<EditGameObject> editGameObjects = new List<EditGameObject>();
 		private GameObject[] editLines;
 		private GameObject inspectorObj;
@@ -29,16 +28,12 @@ namespace InGameDebugger {
 		private MeshViewer meshViewer;
 		private AudioSource mAudioSource;
 
-		private const float size = 40f, topBtnWidth = 150f, topBtnHeight = 50f;
-		private const int fontSize = 25, topBtnFontSize = 30;
 		private bool find;
 		private float offset;
 		private GameObject comBtn;
 
 		private void Start() {
 			try {
-				font = ViewerCreater.font;
-
 				topPanel = new GameObject("TopPanel");
 				topPanel.AddComponent<SceneViewerFlag>();
 				topPanel.transform.SetParent(transform);
@@ -47,7 +42,7 @@ namespace InGameDebugger {
 				topPanelR.anchorMin = new Vector2(0, 1);
 				topPanelR.anchorMax = Vector2.one;
 				topPanelR.pivot = new Vector2(0, 1);
-				topPanelR.anchoredPosition = new Vector2(0, topBtnHeight);
+				topPanelR.anchoredPosition = new Vector2(0, ViewerCreater.topBtnHeight);
 				topPanelR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
 
 				refreshBtn = new GameObject("RefreshBtn");
@@ -60,25 +55,25 @@ namespace InGameDebugger {
 				refreshBtnR.anchorMax = Vector2.one;
 				refreshBtnR.pivot = Vector2.one;
 				refreshBtnR.anchoredPosition = Vector2.zero;
-				refreshBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
+				refreshBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.topBtnWidth);
 
 				var refreshText = new GameObject("RefreshText");
 				refreshText.AddComponent<SceneViewerFlag>();
 				refreshText.transform.SetParent(refreshBtn.transform);
 				var refreshTextT = refreshText.AddComponent<Text>();
 				refreshTextT.text = "Refresh";
-				refreshTextT.font = font;
-				refreshTextT.fontSize = topBtnFontSize;
+				refreshTextT.font = ViewerCreater.font;
+				refreshTextT.fontSize = ViewerCreater.topBtnFontSize;
 				refreshTextT.color = Color.black;
 				refreshTextT.alignment = TextAnchor.MiddleCenter;
 				var refreshTextR = refreshText.GetComponent<RectTransform>();
 				refreshTextR.anchoredPosition = Vector2.zero;
-				refreshTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
+				refreshTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.topBtnWidth);
 
 				var findBtn = Instantiate(refreshBtn, topPanel.transform);
 				findBtn.name = "FindBtn";
 				findBtn.GetComponentInChildren<Text>().text = "Capture";
-				findBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(-topBtnWidth * 1.1f, 0);
+				findBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(-ViewerCreater.topBtnWidth * 1.1f, 0);
 				findBtn.GetComponent<Button>().onClick.AddListener(new UnityAction(() => {
 					scrollViewH.SetActive(false);
 					find = true;
@@ -96,9 +91,7 @@ namespace InGameDebugger {
 				scrollViewHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
 				scrollViewHR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - 100);
 				var scrollViewHS = scrollViewH.AddComponent<ScrollRect>();
-				scrollViewHS.onValueChanged.AddListener((_) => {
-					RefreshView();
-				});
+				scrollViewHS.onValueChanged.AddListener(_ => RefreshView());
 				scrollViewHS.movementType = ScrollRect.MovementType.Clamped;
 				scrollViewHS.decelerationRate = 0.5f;
 
@@ -184,8 +177,8 @@ namespace InGameDebugger {
 				backText.transform.SetParent(backBtn.transform);
 				var backTextT = backText.AddComponent<Text>();
 				backTextT.text = "Back";
-				backTextT.font = font;
-				backTextT.fontSize = topBtnFontSize;
+				backTextT.font = ViewerCreater.font;
+				backTextT.fontSize = ViewerCreater.topBtnFontSize;
 				backTextT.color = Color.black;
 				backTextT.alignment = TextAnchor.MiddleCenter;
 				backText.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -220,7 +213,7 @@ namespace InGameDebugger {
 				RefreshGameObjects();
 				RefreshView();
 			} catch (Exception e) {
-				Utils.MessageBoxError(e.ToString(), "Error in SceneViewer Start");
+				Utils.LogError(e.ToString(), "Error in SceneViewer Start");
 			}
 }
 
@@ -231,13 +224,13 @@ namespace InGameDebugger {
 			for (int i = 0; i < editGameObjects.Count; i++) {
 				var edit = editGameObjects[i];
 				if (IsLineShow(edit)) {
-					if (y + size >= contentH.GetComponent<RectTransform>().anchoredPosition.y) {
+					if (y + ViewerCreater.size >= contentH.GetComponent<RectTransform>().anchoredPosition.y) {
 						if (j < editLines.Length) {
 							num++;
-							editLines[j].GetComponent<RectTransform>().anchoredPosition = new Vector2(edit.level * size, -y);
+							editLines[j].GetComponent<RectTransform>().anchoredPosition = new Vector2(edit.level * ViewerCreater.size, -y);
 							var editline = editLines[j].GetComponent<EditLine>();
 							editline.Set(edit);
-							float width = editline.nameText.GetComponent<RectTransform>().rect.width + (edit.level + 1.5f) * size;
+							float width = editline.nameText.GetComponent<RectTransform>().rect.width + (edit.level + 1.5f) * ViewerCreater.size;
 							if (width > maxWidth) {
 								maxWidth = width;
 							}
@@ -249,7 +242,7 @@ namespace InGameDebugger {
 							break;
 						}
 					}
-					y += size;
+					y += ViewerCreater.size;
 				}
 			}
 			for (; num < editLines.Length; num++) {
@@ -258,7 +251,7 @@ namespace InGameDebugger {
 			foreach (var edit in editLines) {
 				if (edit.activeSelf) {
 					var editline = edit.GetComponent<EditLine>();
-					editline.funcBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxWidth - editline.editGameObject.level * size);
+					editline.funcBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, maxWidth - editline.editGameObject.level * ViewerCreater.size);
 				}
 			}
 			contentH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, y);
@@ -281,25 +274,25 @@ namespace InGameDebugger {
 			propText.AddComponent<SceneViewerFlag>();
 			var propTextT = propText.AddComponent<Text>();
 			propTextT.text = $"{propTextName}:";
-			propTextT.font = font;
-			propTextT.fontSize = fontSize;
+			propTextT.font = ViewerCreater.font;
+			propTextT.fontSize = ViewerCreater.fontSize;
 			propTextT.color = Color.black;
 			propTextT.alignment = TextAnchor.MiddleLeft;
 			var propTextR = propText.GetComponent<RectTransform>();
 			propTextR.anchorMin = new Vector2(0, 1);
 			propTextR.anchorMax = new Vector2(0, 1);
 			propTextR.pivot = new Vector2(0, 1);
-			propTextR.anchoredPosition = new Vector2(size * 0.6f, offset);
-			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - size * 0.6f);
-			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			propTextR.anchoredPosition = new Vector2(ViewerCreater.size * 0.6f, offset);
+			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - ViewerCreater.size * 0.6f);
+			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			return propText;
 		}
 
 		GameObject AddGroupText(string groupTextName) {
 			var g = AddPropText(groupTextName);
 			g.GetComponent<Text>().fontStyle = FontStyle.Bold;
-			g.GetComponent<RectTransform>().anchoredPosition = new Vector2(size * 0.3f, offset);
-			offset -= size;
+			g.GetComponent<RectTransform>().anchoredPosition = new Vector2(ViewerCreater.size * 0.3f, offset);
+			offset -= ViewerCreater.size;
 			return g;
 		}
 
@@ -312,13 +305,11 @@ namespace InGameDebugger {
 			v3R.pivot = Vector2.one;
 			v3R.anchoredPosition = new Vector2(-20, 0);
 			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 3);
+			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 3);
 			var v3V = vector3Editor.AddComponent<Vector3Editor>();
-			v3V.size = size;
-			v3V.fontSize = fontSize;
 			v3V.get = get;
 			v3V.set = set;
-			offset -= size * 3.2f;
+			offset -= ViewerCreater.size * 3.2f;
 		}
 
 		void AddBoolEditor(GameObject parent, Func<bool> get, Action<bool> set) {
@@ -329,14 +320,12 @@ namespace InGameDebugger {
 			v3R.anchorMax = Vector2.one;
 			v3R.pivot = Vector2.one;
 			v3R.anchoredPosition = new Vector2(-20, 0);
-			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size * 0.8f);
-			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.size * 0.8f);
+			v3R.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			var v3B = boolEditor.AddComponent<BoolEditor>();
-			v3B.size = size;
-			v3B.fontSize = fontSize;
 			v3B.get = get;
 			v3B.set = set;
-			offset -= size;
+			offset -= ViewerCreater.size;
 		}
 
 		void AddEnumEditor(GameObject parent, Type enumType, Func<int> get, Action<int> set) {
@@ -348,14 +337,12 @@ namespace InGameDebugger {
 			enumR.pivot = Vector2.one;
 			enumR.anchoredPosition = new Vector2(-20, 0);
 			enumR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			enumR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			enumR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			var enumE = enumEditor.AddComponent<EnumEditor>();
-			enumE.size = size;
-			enumE.fontSize = fontSize;
 			enumE.enumType = enumType;
 			enumE.get = get;
 			enumE.set = set;
-			offset -= size * 1.2f;
+			offset -= ViewerCreater.size * 1.2f;
 		}
 
 		void AddFloatEditor(GameObject parent, Func<float> get, Action<float> set, float min, float max) {
@@ -367,15 +354,13 @@ namespace InGameDebugger {
 			floatR.pivot = Vector2.one;
 			floatR.anchoredPosition = new Vector2(-20, 0);
 			floatR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			floatR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			floatR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			var floatV = floatEditor.AddComponent<FloatEditor>();
-			floatV.size = size;
-			floatV.fontSize = fontSize;
 			floatV.get = get;
 			floatV.set = set;
 			floatV.minimum = min;
 			floatV.maximum = max;
-			offset -= size * 1.2f;
+			offset -= ViewerCreater.size * 1.2f;
 		}
 
 		void AddFloatEditor(GameObject parent, Func<float> get, Action<float> set) {
@@ -391,15 +376,13 @@ namespace InGameDebugger {
 			intR.pivot = Vector2.one;
 			intR.anchoredPosition = new Vector2(-20, 0);
 			intR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			intR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			intR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			var intV = intEditor.AddComponent<IntEditor>();
-			intV.size = size;
-			intV.fontSize = fontSize;
 			intV.get = get;
 			intV.set = set;
 			intV.minimum = min;
 			intV.maximum = max;
-			offset -= size * 1.2f;
+			offset -= ViewerCreater.size * 1.2f;
 		}
 
 		void AddIntEditor(GameObject parent, Func<int> get, Action<int> set) {
@@ -415,13 +398,11 @@ namespace InGameDebugger {
 			stringR.pivot = Vector2.one;
 			stringR.anchoredPosition = new Vector2(-20, 0);
 			stringR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			stringR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			stringR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			var stringV = stringEditor.AddComponent<StringEditor>();
-			stringV.size = size;
-			stringV.fontSize = fontSize;
 			stringV.get = get;
 			stringV.set = set;
-			offset -= size * 1.2f;
+			offset -= ViewerCreater.size * 1.2f;
 		}
 
 		void AddButton(GameObject parent, Func<string> get, Action onClick) {
@@ -433,7 +414,7 @@ namespace InGameDebugger {
 			buttonR.pivot = Vector2.one;
 			buttonR.anchoredPosition = new Vector2(-20, 0);
 			buttonR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			buttonR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			buttonR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			button.AddComponent<Image>();
 			var buttonT = new GameObject("text");
 			buttonT.transform.SetParent(button.transform);
@@ -442,16 +423,16 @@ namespace InGameDebugger {
 			buttonTR.anchorMax = Vector2.one;
 			buttonTR.anchoredPosition = Vector2.zero;
 			buttonTR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			buttonTR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+			buttonTR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 			var buttonTT = buttonT.AddComponent<Text>();
 			buttonTT.color = Color.black;
 			buttonTT.alignment = TextAnchor.MiddleCenter;
-			buttonTT.font = font;
-			buttonTT.fontSize = fontSize;
+			buttonTT.font = ViewerCreater.font;
+			buttonTT.fontSize = ViewerCreater.fontSize;
 			buttonT.AddComponent<Updater>().Action = () => buttonTT.text = get();
 			var buttonB = button.AddComponent<Button>();
 			buttonB.onClick.AddListener(() => onClick?.Invoke());
-			offset -= size * 1.2f;
+			offset -= ViewerCreater.size * 1.2f;
 		}
 
 		void ViewMesh(MeshFilter meshFilter) {
@@ -484,9 +465,9 @@ namespace InGameDebugger {
 			}
 			float y = 0;
 			var coms = inspectorObj.GetComponents<Component>();
-			offset = -size;
+			offset = -ViewerCreater.size;
 			foreach (var com in coms) {
-				offset = -size;
+				offset = -ViewerCreater.size;
 				comBtn = new GameObject(com.GetType().Name);
 				comBtn.transform.SetParent(contentI.transform);
 				comBtn.AddComponent<SceneViewerFlag>();
@@ -498,21 +479,21 @@ namespace InGameDebugger {
 				comBtnR.pivot = new Vector2(0, 1);
 				comBtnR.anchoredPosition = new Vector2(0, y);
 				comBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				comBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+				comBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 				var comText = new GameObject("Text");
 				comText.transform.SetParent(comBtn.transform);
 				var comTextT = comText.AddComponent<Text>();
 				comTextT.text = com.GetType().Name;
-				comTextT.font = font;
+				comTextT.font = ViewerCreater.font;
 				comTextT.fontStyle = FontStyle.Bold;
-				comTextT.fontSize = fontSize;
+				comTextT.fontSize = ViewerCreater.fontSize;
 				comTextT.color = Color.black;
 				comTextT.alignment = TextAnchor.MiddleLeft;
 				var comTextR = comText.GetComponent<RectTransform>();
-				comTextR.anchoredPosition = new Vector2(size * 0.3f, 0);
+				comTextR.anchoredPosition = new Vector2(ViewerCreater.size * 0.3f, 0);
 				comTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				comTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
-				y -= size;
+				comTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
+				y -= ViewerCreater.size;
 
 				if (com is Transform transform) {
 					AddVector3Editor(AddPropText("Position"), () => transform.position, v3 => transform.position = v3);
@@ -649,11 +630,11 @@ namespace InGameDebugger {
 				}
 			}
 			contentH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-			contentH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * editGameObjects.Count);
+			contentH.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * editGameObjects.Count);
 		}
 
 		public void InitHierarchy() {
-			editLines = new GameObject[Mathf.CeilToInt(Screen.height / size)];
+			editLines = new GameObject[Mathf.CeilToInt(Screen.height / ViewerCreater.size)];
 			for (int i = 0; i < editLines.Length; i++) {
 				var btn = new GameObject($"Btn{i}");
 				btn.AddComponent<SceneViewerFlag>();
@@ -673,20 +654,20 @@ namespace InGameDebugger {
 				label.AddComponent<SceneViewerFlag>();
 				label.transform.SetParent(btn.transform);
 				label.AddComponent<Text>();
-				label.GetComponent<Text>().font = font;
-				label.GetComponent<Text>().fontSize = (int)(size * 0.7f);
+				label.GetComponent<Text>().font = ViewerCreater.font;
+				label.GetComponent<Text>().fontSize = (int)(ViewerCreater.size * 0.7f);
 				label.GetComponent<Text>().color = Color.black;
 				label.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
 				label.GetComponent<Text>().text = "＋";
-				label.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
-				label.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+				label.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.size);
+				label.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 				label.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 				var text = new GameObject("Text");
 				text.AddComponent<SceneViewerFlag>();
 				text.transform.SetParent(btn.transform);
 				text.AddComponent<Text>();
-				text.GetComponent<Text>().font = font;
-				text.GetComponent<Text>().fontSize = (int)(size * 0.5f);
+				text.GetComponent<Text>().font = ViewerCreater.font;
+				text.GetComponent<Text>().fontSize = (int)(ViewerCreater.size * 0.5f);
 				text.GetComponent<Text>().color = Color.black;
 				text.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
 				text.GetComponent<Text>().text = gameObject.name;
@@ -695,17 +676,17 @@ namespace InGameDebugger {
 				btn.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
 				btn.GetComponent<RectTransform>().anchorMax = new Vector2(0, 1);
 				btn.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
-				btn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
-				btn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+				btn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.size);
+				btn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 				funBtn.transform.SetParent(btn.transform);
 				funBtn.GetComponent<Image>().color = new Color(1, 1, 1, 0.2f);
 				funBtn.GetComponent<RectTransform>().anchorMin = text.GetComponent<RectTransform>().anchorMin = new Vector2(1, 0.5f);
 				funBtn.GetComponent<RectTransform>().anchorMax = text.GetComponent<RectTransform>().anchorMax = new Vector2(1, 0.5f);
 				funBtn.GetComponent<RectTransform>().pivot = text.GetComponent<RectTransform>().pivot = new Vector2(0, 0.5f);
-				text.GetComponent<RectTransform>().anchoredPosition = new Vector2(size * 0.3f, 0);
+				text.GetComponent<RectTransform>().anchoredPosition = new Vector2(ViewerCreater.size * 0.3f, 0);
 				funBtn.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				text.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
-				funBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+				text.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
+				funBtn.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
 				btn.AddComponent<EditLine>().Init(funBtn.GetComponent<Button>(), text.GetComponent<Text>(), label.GetComponent<Text>());
 				editLines[i] = btn;
 			}

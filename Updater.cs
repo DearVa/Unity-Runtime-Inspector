@@ -1,10 +1,12 @@
 ﻿using System;
 using UnityEngine;
 
-public class Updater : MonoBehaviour {
-	public Action Action;
+namespace InGameDebugger {
+	public class Updater : MonoBehaviour {
+		public Action Action;
 
-	void Update() {
-		Action?.Invoke();
+		void Update() {
+			Action?.Invoke();
+		}
 	}
 }

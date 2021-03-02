@@ -1,14 +1,19 @@
 ﻿using System;
 using UnityEngine;
-using System.Runtime.InteropServices;
+using System.IO;
 
 namespace InGameDebugger {
 	public static class Utils {
-		[DllImport("User32.dll", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Auto)]
-		public static extern int MessageBox(IntPtr handle, string message, string title, uint type);
-
-		public static void MessageBoxError(string message, string title) {
-			MessageBox(IntPtr.Zero, message, title, 0x00000010);
+		public static void LogError(string message, string title) {
+			var fn = $"{Application.persistentDataPath}/{DateTime.Now:yyyy-MM-dd}.txt";
+			if (File.Exists(fn)) {
+				var oldLog = File.ReadAllText(fn);
+				File.WriteAllText(fn, $"{oldLog}\n\n{DateTime.Now:yyyy-MM-dd hh:mm:ss.fff}\n{message}\n");
+			} else {
+				File.Create(fn);
+				File.WriteAllText(fn, $"{DateTime.Now:yyyy-MM-dd hh:mm:ss.fff}\n\n{message}\n");
+			}
+			ShowAndroidToastMessage($"{title}\nSaved At: {fn}");
 		}
 
 		public static void ShowAndroidToastMessage(string message) {

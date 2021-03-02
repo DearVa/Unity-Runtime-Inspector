@@ -7,8 +7,6 @@ using UnityEngine.EventSystems;
 namespace InGameDebugger {
 
 	public class StringEditor : MonoBehaviour {
-		public float size;
-		public int fontSize;
 		public Func<string> get;
 		public Action<string> set;
 
@@ -29,18 +27,18 @@ namespace InGameDebugger {
 			inputText.transform.SetParent(input.transform);
 			var inputTextT = inputText.AddComponent<Text>();
 			inputTextT.font = ViewerCreater.font;
-			inputTextT.fontSize = fontSize;
+			inputTextT.fontSize = ViewerCreater.fontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;
 			inputTextT.alignment = TextAnchor.MiddleCenter;
 			var inputTextR = inputText.GetComponent<RectTransform>();
 			inputTextR.anchoredPosition = Vector2.zero;
-			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 
 			input.AddComponent<Image>();
 			var inputR = input.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 			inputR.anchoredPosition = Vector2.zero;
 			var inputI = input.AddComponent<InputField>();

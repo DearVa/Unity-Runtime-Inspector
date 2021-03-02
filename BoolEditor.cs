@@ -5,8 +5,6 @@ using UnityEngine.Events;
 
 namespace InGameDebugger {
 	public class BoolEditor : MonoBehaviour {
-		public float size;
-		public int fontSize;
 		public Func<bool> get;
 		public Action<bool> set;
 
@@ -27,20 +25,20 @@ namespace InGameDebugger {
 			checkText.transform.SetParent(check.transform);
 			var checkTextT = checkText.AddComponent<Text>();
 			checkTextT.font = ViewerCreater.font;
-			checkTextT.fontSize = fontSize;
+			checkTextT.fontSize = ViewerCreater.fontSize;
 			checkTextT.supportRichText = false;
 			checkTextT.color = Color.black;
 			checkTextT.alignment = TextAnchor.MiddleCenter;
 			checkTextT.text = "√";
 			var checkTextR = checkText.GetComponent<RectTransform>();
 			checkTextR.anchoredPosition = Vector2.zero;
-			checkTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
-			checkTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size * 0.8f);
+			checkTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			checkTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.size * 0.8f);
 
 			check.AddComponent<Image>();
 			var inputR = check.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size * 0.8f);
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ViewerCreater.size * 0.8f);
 			inputR.anchoredPosition = Vector2.zero;
 
 			checkT = check.AddComponent<Toggle>();
