@@ -15,7 +15,7 @@ namespace InGameDebugger {
 		private RectTransform outputTR, viewportR;
 		private readonly StringBuilder buffer = new StringBuilder();
 
-		void Start() {
+		void Awake() {
 			try {
 				if (GetComponent<SceneViewerFlag>() == null) {
 					gameObject.AddComponent<SceneViewerFlag>();
@@ -28,8 +28,8 @@ namespace InGameDebugger {
 				gameObject.AddComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
 
 				var thisR = GetComponent<RectTransform>();
-				thisR.anchorMin = new Vector2(0.5f, 0);
-				thisR.anchorMax = new Vector2(0.5f, 0);
+				thisR.anchorMin = Vector2.zero;
+				thisR.anchorMax = Vector2.one;
 				thisR.pivot = new Vector2(0.5f, 0);
 				thisR.anchoredPosition = Vector2.zero;
 				thisR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
@@ -64,7 +64,7 @@ namespace InGameDebugger {
 				output.transform.parent = transform;
 				var outputS = output.AddComponent<ScrollRect>();
 				var outputR = output.GetComponent<RectTransform>();
-				outputR.anchorMin = Vector2.up;
+				outputR.anchorMin = Vector2.zero;
 				outputR.anchorMax = Vector2.one;
 				outputR.pivot = new Vector2(0.5f, 1);
 				outputR.anchoredPosition = new Vector2(0, -10);
@@ -90,8 +90,8 @@ namespace InGameDebugger {
 				outputT.text = "Output";
 				outputTR = outputText.GetComponent<RectTransform>();
 				outputTR = outputT.rectTransform;
-				outputTR.anchorMin = new Vector2(0.5f, 1);
-				outputTR.anchorMax = new Vector2(0.5f, 1);
+				outputTR.anchorMin = new Vector2(0, 1);
+				outputTR.anchorMax = Vector2.one;
 				outputTR.pivot = new Vector2(0.5f, 1);
 				outputTR.anchoredPosition = new Vector2(5, -5);
 				outputTR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - 10);
@@ -146,7 +146,7 @@ namespace InGameDebugger {
 						writer.Flush();
 						var builder = writer.GetStringBuilder();
 						var s = builder.ToString();
-						builder.Clear();
+						builder.Remove(0, s.Length);
 						if (printer.ErrorsCount > 0) {
 							WriteLine($"{str}\n<color=#ff0000ff>{s}</color>");
 							return;

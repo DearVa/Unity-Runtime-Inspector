@@ -32,6 +32,8 @@ namespace InGameDebugger {
 
 		private void Start() {
 			try {
+				Utils.ShowAndroidToastMessage("Starting ViewerCreater...");
+
 				font = Font.CreateDynamicFontFromOSFont("Arial", 50);
 
 				var eventSystem = new GameObject("EventSystem");
@@ -113,17 +115,17 @@ namespace InGameDebugger {
 				pauseTextR.anchoredPosition = Vector2.zero;
 				pauseTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, topBtnWidth);
 
-				var consoleBtn = Instantiate(pauseBtn, viewerCanvas.transform);
-				consoleBtn.name = "ConsoleBtn";
-				consoleBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(topBtnWidth * 2.2f, 0);
-				consoleBtn.GetComponentInChildren<Text>().text = "Console";
+				//var consoleBtn = Instantiate(pauseBtn, viewerCanvas.transform);
+				//consoleBtn.name = "ConsoleBtn";
+				//consoleBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(topBtnWidth * 2.2f, 0);
+				//consoleBtn.GetComponentInChildren<Text>().text = "Console";
 
-				var console = new GameObject("Console");
-				console.transform.SetParent(viewerCanvas.transform);
-				console.AddComponent<InGameConsole>();
-				console.SetActive(false);
+				//var console = new GameObject("Console");
+				//console.transform.SetParent(viewerCanvas.transform);
+				//console.AddComponent<InGameConsole>();
+				//console.SetActive(false);
 
-				pauseBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
+				pauseBtn.AddComponent<Button>().onClick.AddListener(() => {
 					paused = !paused;
 					if (paused) {
 						timeScale = Time.timeScale;
@@ -132,11 +134,14 @@ namespace InGameDebugger {
 						Time.timeScale = timeScale;
 					}
 					pauseTextT.text = paused ? "Resume" : "Pause";
-				}));
-				consoleBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
-					console.SetActive(!console.activeSelf);
-					consoleBtn.GetComponentInChildren<Text>().text = console.activeSelf ? "Close" : "Console";
-				}));
+				});
+				//consoleBtn.AddComponent<Button>().onClick.AddListener(() => {
+				//	if (console.GetComponent<InGameConsole>() == null) {
+				//		console.AddComponent<InGameConsole>();
+				//	}
+				//	console.SetActive(!console.activeSelf);
+				//	consoleBtn.GetComponentInChildren<Text>().text = console.activeSelf ? "Close" : "Console";
+				//});
 			} catch (Exception e) {
 				Utils.LogError(e.ToString(), "Error in ViewerCreater Start");
 			}

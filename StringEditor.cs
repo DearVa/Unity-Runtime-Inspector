@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using System;
 using UnityEngine.EventSystems;
 
 namespace InGameDebugger {
 
 	public class StringEditor : MonoBehaviour {
-		public Func<string> get;
-		public Action<string> set;
+		public delegate string getS();
+		public delegate void setS(string s);
+		public getS get;
+		public setS set;
 
 		private GameObject input;
 		private bool editing;

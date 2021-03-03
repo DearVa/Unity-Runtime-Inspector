@@ -1,12 +1,13 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
 namespace InGameDebugger {
 	public class BoolEditor : MonoBehaviour {
-		public Func<bool> get;
-		public Action<bool> set;
+		public delegate bool getB();
+		public delegate void setB(bool b);
+		public getB get;
+		public setB set;
 
 		private Toggle checkT;
 		private GameObject checkText;
@@ -42,6 +43,7 @@ namespace InGameDebugger {
 			inputR.anchoredPosition = Vector2.zero;
 
 			checkT = check.AddComponent<Toggle>();
+			Update();
 			checkT.onValueChanged.AddListener(new UnityAction<bool>((b) => {
 				set(b);
 			}));

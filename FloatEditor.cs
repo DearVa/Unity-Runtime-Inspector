@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using System;
 using UnityEngine.EventSystems;
-using System.Reflection;
 
 namespace InGameDebugger {
 	public class FloatEditor : MonoBehaviour {
-		public Func<float> get;
-		public Action<float> set;
+		public delegate float getF();
+		public delegate void setF(float f);
+		public getF get;
+		public setF set;
 		public float minimum;
 		public float maximum;
 

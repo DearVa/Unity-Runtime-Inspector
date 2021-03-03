@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using System;
 using UnityEngine.EventSystems;
 
 namespace InGameDebugger {
 
 	public class IntEditor : MonoBehaviour {
-		public Func<int> get;
-		public Action<int> set;
+		public delegate int getI();
+		public delegate void setI(int i);
+		public getI get;
+		public setI set;
 		public float minimum;
 		public float maximum;
 

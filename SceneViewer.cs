@@ -182,7 +182,7 @@ namespace InGameDebugger {
 				backTextT.color = Color.black;
 				backTextT.alignment = TextAnchor.MiddleCenter;
 				backText.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-				backText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 310);
+				backText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 320);
 				backBtn.GetComponent<Button>().onClick.AddListener(() => {
 					scrollViewI.SetActive(false);
 					scrollViewH.SetActive(true);
@@ -296,7 +296,7 @@ namespace InGameDebugger {
 			return g;
 		}
 
-		void AddVector3Editor(GameObject parent, Func<Vector3> get, Action<Vector3> set) {
+		void AddVector3Editor(GameObject parent, Vector3Editor.getV3 get, Vector3Editor.setV3 set) {
 			var vector3Editor = new GameObject($"{parent.name} Editor");
 			vector3Editor.transform.SetParent(parent.transform);
 			var v3R = vector3Editor.AddComponent<RectTransform>();
@@ -312,7 +312,7 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size * 3.2f;
 		}
 
-		void AddBoolEditor(GameObject parent, Func<bool> get, Action<bool> set) {
+		void AddBoolEditor(GameObject parent, BoolEditor.getB get, BoolEditor.setB set) {
 			var boolEditor = new GameObject($"{parent.name} Editor");
 			boolEditor.transform.SetParent(parent.transform);
 			var v3R = boolEditor.AddComponent<RectTransform>();
@@ -328,7 +328,7 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size;
 		}
 
-		void AddEnumEditor(GameObject parent, Type enumType, Func<int> get, Action<int> set) {
+		void AddEnumEditor(GameObject parent, Type enumType, EnumEditor.getE get, EnumEditor.setE set) {
 			var enumEditor = new GameObject($"{parent.name} Editor");
 			enumEditor.transform.SetParent(parent.transform);
 			var enumR = enumEditor.AddComponent<RectTransform>();
@@ -345,7 +345,7 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size * 1.2f;
 		}
 
-		void AddFloatEditor(GameObject parent, Func<float> get, Action<float> set, float min, float max) {
+		void AddFloatEditor(GameObject parent, FloatEditor.getF get, FloatEditor.setF set, float min, float max) {
 			var floatEditor = new GameObject($"{parent.name} Editor");
 			floatEditor.transform.SetParent(parent.transform);
 			var floatR = floatEditor.AddComponent<RectTransform>();
@@ -363,11 +363,11 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size * 1.2f;
 		}
 
-		void AddFloatEditor(GameObject parent, Func<float> get, Action<float> set) {
+		void AddFloatEditor(GameObject parent, FloatEditor.getF get, FloatEditor.setF set) {
 			AddFloatEditor(parent, get, set, float.NegativeInfinity, float.PositiveInfinity);
 		}
 
-		void AddIntEditor(GameObject parent, Func<int> get, Action<int> set, float min, float max) {
+		void AddIntEditor(GameObject parent, IntEditor.getI get, IntEditor.setI set, float min, float max) {
 			var intEditor = new GameObject($"{parent.name} Editor");
 			intEditor.transform.SetParent(parent.transform);
 			var intR = intEditor.AddComponent<RectTransform>();
@@ -385,11 +385,11 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size * 1.2f;
 		}
 
-		void AddIntEditor(GameObject parent, Func<int> get, Action<int> set) {
+		void AddIntEditor(GameObject parent, IntEditor.getI get, IntEditor.setI set) {
 			AddIntEditor(parent, get, set, float.NegativeInfinity, float.PositiveInfinity);
 		}
 
-		void AddStringEditor(GameObject parent, Func<string> get, Action<string> set) {
+		void AddStringEditor(GameObject parent, StringEditor.getS get, StringEditor.setS set) {
 			var stringEditor = new GameObject($"{parent.name} Editor");
 			stringEditor.transform.SetParent(parent.transform);
 			var stringR = stringEditor.AddComponent<RectTransform>();
@@ -405,7 +405,8 @@ namespace InGameDebugger {
 			offset -= ViewerCreater.size * 1.2f;
 		}
 
-		void AddButton(GameObject parent, Func<string> get, Action onClick) {
+		delegate void action();
+		void AddButton(GameObject parent, StringEditor.getS get, action onClick) {
 			var button = new GameObject($"{parent.name} Button");
 			button.transform.SetParent(parent.transform);
 			var buttonR = button.AddComponent<RectTransform>();
@@ -571,21 +572,21 @@ namespace InGameDebugger {
 							name = name.Substring(0, 1).ToUpper() + name.Substring(1);
 							var propText = AddPropText(name);
 							if (prop.PropertyType == typeof(Vector3)) {
-								AddVector3Editor(propText, () => (Vector3)prop.GetValue(com), v3 => prop.SetValue(com, v3));
+								AddVector3Editor(propText, () => (Vector3)prop.GetValue(com, null), v3 => prop.SetValue(com, v3, null));
 							} else if (prop.PropertyType == typeof(bool)) {
-								AddBoolEditor(propText, () => (bool)prop.GetValue(com), b => prop.SetValue(com, b));
+								AddBoolEditor(propText, () => (bool)prop.GetValue(com, null), b => prop.SetValue(com, b, null));
 							} else if (prop.PropertyType == typeof(float)) {
-								AddFloatEditor(propText, () => (float)prop.GetValue(com), f => prop.SetValue(com, f));
+								AddFloatEditor(propText, () => (float)prop.GetValue(com, null), f => prop.SetValue(com, f, null));
 							} else if (prop.PropertyType == typeof(int)) {
-								AddIntEditor(propText, () => (int)prop.GetValue(com), i => prop.SetValue(com, i));
+								AddIntEditor(propText, () => (int)prop.GetValue(com, null), i => prop.SetValue(com, i, null));
 							} else if (prop.PropertyType == typeof(string)) {
-								AddStringEditor(propText, () => (string)prop.GetValue(com), s => prop.SetValue(com, s));
+								AddStringEditor(propText, () => (string)prop.GetValue(com, null), s => prop.SetValue(com, s, null));
 							} else if (prop.PropertyType.IsEnum) {
-								AddEnumEditor(propText, prop.PropertyType, () => (int)prop.GetValue(com), i => prop.SetValue(com, i));
+								AddEnumEditor(propText, prop.PropertyType, () => (int)prop.GetValue(com, null), i => prop.SetValue(com, i, null));
 							} else {
 								AddButton(propText, () => { 
 									try { 
-										return prop.GetValue(com).ToString(); 
+										return prop.GetValue(com, null).ToString(); 
 									} catch { }
 									return "Error";
 								}, null);
@@ -648,7 +649,11 @@ namespace InGameDebugger {
 				funBtn.AddComponent<Image>();
 				funBtn.AddComponent<Button>().onClick.AddListener(new UnityAction(() => {
 					inspectorObj = btn.GetComponent<EditLine>().editGameObject.gameObject;
-					LoadInspector();
+					try {
+						LoadInspector();
+					} catch (Exception e) {
+						Utils.LogError(e.ToString(), "Error in LoadInspector");
+					}
 				}));
 				var label = new GameObject("Label");
 				label.AddComponent<SceneViewerFlag>();

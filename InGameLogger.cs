@@ -34,7 +34,8 @@ namespace InGameDebugger {
 	}
 
 	public class InGameLogger : ILogger, ILogHandler {
-		public static Action<Log> Logging = null; 
+		public delegate void log(Log l);
+		public static log Logging = null; 
 
 		public InGameLogger(ILogHandler logHandler) {
 			this.logHandler = logHandler;

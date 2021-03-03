@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace InGameDebugger {
 	public class Updater : MonoBehaviour {
-		public Action Action;
+		public delegate void action();
+		public action Action;
 
 		void Update() {
 			Action?.Invoke();

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net35</TargetFramework>
     <Authors>Dear.Va</Authors>
     <Company>Dear.Va's Studio</Company>
     <AssemblyName>InGameDebugger</AssemblyName>
@@ -13,9 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Mono.CSharp">
-      <HintPath>Mono.CSharp.dll</HintPath>
-    </Reference>
+    <Compile Remove="InGameConsole.cs" />
+    <Compile Remove="ValueEditor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Unity dlls\Unity.TextMeshPro.dll</HintPath>
     </Reference>

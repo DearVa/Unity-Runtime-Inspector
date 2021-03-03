@@ -8,8 +8,10 @@ using System.Reflection;
 namespace InGameDebugger {
 
 	public class Vector3Editor : MonoBehaviour {
-		public Func<Vector3> get;
-		public Action<Vector3> set;
+		public delegate Vector3 getV3();
+		public delegate void setV3(Vector3 v3);
+		public getV3 get;
+		public setV3 set;
 
 		private InputField xInputI, yInputI, zInputI;
 		private bool xEditing, yEditing, zEditing;

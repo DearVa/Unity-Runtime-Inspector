@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -8,8 +7,10 @@ using System.Collections.Generic;
 namespace InGameDebugger {
 	public class EnumEditor : MonoBehaviour {
 		public Type enumType;
-		public Func<int> get;
-		public Action<int> set;
+		public delegate int getE();
+		public delegate void setE(int i);
+		public getE get;
+		public setE set;
 
 		private Dropdown dropD;
 		private readonly List<int> enums = new List<int>();
