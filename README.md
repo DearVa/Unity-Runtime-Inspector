@@ -18,4 +18,4 @@ Enable you to debug a running Unity game just like in Unity.
   Using .NET Framework 4.5. It depends on mscorlib 4.0.0.0. But cannot running on Android.
 * Android-mscorlib-2.0.0.0: 
   
-  As it shows, it can run on Android however Mono.CSharp cannot use any more.
+  Using .NET Framework 3.5. As it shows, it can run on Android however Mono.CSharp cannot use any more.
