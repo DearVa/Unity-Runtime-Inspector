@@ -268,9 +268,9 @@ namespace InGameDebugger {
 			return true;
 		}
 
-		GameObject AddPropText(string propTextName) {
-			var propText = new GameObject(comBtn.name);
-			propText.transform.SetParent(comBtn.transform);
+		GameObject AddPropText(GameObject parent, string propTextName) {
+			var propText = new GameObject(parent.name);
+			propText.transform.SetParent(parent.transform);
 			propText.AddComponent<SceneViewerFlag>();
 			var propTextT = propText.AddComponent<Text>();
 			propTextT.text = $"{propTextName}:";
@@ -286,6 +286,10 @@ namespace InGameDebugger {
 			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - ViewerCreater.size * 0.6f);
 			propTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
 			return propText;
+		}
+
+		GameObject AddPropText(string propTextName) {
+			return AddPropText(comBtn, propTextName);
 		}
 
 		GameObject AddGroupText(string groupTextName) {
@@ -464,9 +468,12 @@ namespace InGameDebugger {
 			foreach (Transform child in contentI.transform) {
 				Destroy(child.gameObject);
 			}
-			float y = 0;
 			var coms = inspectorObj.GetComponents<Component>();
-			offset = -ViewerCreater.size;
+			offset = 0;
+			AddBoolEditor(AddPropText(contentI.gameObject, "ActiveSelf"), () => inspectorObj.activeSelf, b => inspectorObj.SetActive(b));
+			AddStringEditor(AddPropText(contentI.gameObject, "Tag"), () => inspectorObj.tag, s => inspectorObj.tag = s);
+			AddIntEditor(AddPropText(contentI.gameObject, "Layer"), () => inspectorObj.layer, i => inspectorObj.layer = i);
+			float y = -ViewerCreater.size * 3.4f;
 			foreach (var com in coms) {
 				offset = -ViewerCreater.size;
 				comBtn = new GameObject(com.GetType().Name);
@@ -583,10 +590,16 @@ namespace InGameDebugger {
 								AddStringEditor(propText, () => (string)prop.GetValue(com, null), s => prop.SetValue(com, s, null));
 							} else if (prop.PropertyType.IsEnum) {
 								AddEnumEditor(propText, prop.PropertyType, () => (int)prop.GetValue(com, null), i => prop.SetValue(com, i, null));
+							} else if (prop.PropertyType.IsSubclassOf(typeof(UnityEvent))) {
+								var ue = prop.GetValue(com, null) as UnityEvent;
+								for (int i = 0; i < ue.GetPersistentEventCount(); i++) {
+									int ii = i;
+									AddButton(propText, () => $"{ue.GetPersistentTarget(ii)} : {ue.GetPersistentMethodName(ii)}", null);
+								}
 							} else {
-								AddButton(propText, () => { 
-									try { 
-										return prop.GetValue(com, null).ToString(); 
+								AddButton(propText, () => {
+									try {
+										return prop.GetValue(com, null).ToString();
 									} catch { }
 									return "Error";
 								}, null);
