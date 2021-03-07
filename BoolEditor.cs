@@ -42,6 +42,7 @@ namespace InGameDebugger {
 			inputR.anchoredPosition = Vector2.zero;
 
 			checkT = check.AddComponent<Toggle>();
+			Update();
 			checkT.onValueChanged.AddListener(new UnityAction<bool>((b) => {
 				set(b);
 			}));

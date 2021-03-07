@@ -582,6 +582,12 @@ namespace InGameDebugger {
 								AddStringEditor(propText, () => (string)prop.GetValue(com), s => prop.SetValue(com, s));
 							} else if (prop.PropertyType.IsEnum) {
 								AddEnumEditor(propText, prop.PropertyType, () => (int)prop.GetValue(com), i => prop.SetValue(com, i));
+							} else if (prop.PropertyType.IsSubclassOf(typeof(UnityEvent))) {
+								var ue = prop.GetValue(com) as UnityEvent;
+								for (int i = 0; i < ue.GetPersistentEventCount(); i++) {
+									int ii = i;
+									AddButton(propText, () => $"{ue.GetPersistentTarget(ii)} : {ue.GetPersistentMethodName(ii)}", null);
+								}
 							} else {
 								AddButton(propText, () => { 
 									try { 

@@ -137,7 +137,7 @@ namespace InGameDebugger {
 				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.CoreModule"));
 				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.UI"));
 				evaluator.Run("using System;using UnityEngine;using UnityEngine.UI;using UnityEngine.Events;using System.Reflection;using System.Collections;using System.Collections.Generic;");
-				codeInputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+				codeInputI.onEndEdit.AddListener(new UnityAction<string>(str => {
 					if (str == "") {
 						return;
 					}
