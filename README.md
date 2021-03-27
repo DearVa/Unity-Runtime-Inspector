@@ -13,11 +13,11 @@ Enable you to debug a running Unity game just like in Unity.
 4. Compile and save it. If there's nothing wrong, when you enter the game, three buttons will be displayed above the screen.
 
 # Q&A
-1. **Why my dnSpy says "You must add a reference to assembly 'UnityEngine.CoreModule.dll'" when compiling?  
+1. **Why my dnSpy says "You must add a reference to assembly 'UnityEngine.CoreModule.dll'" when compiling?**  
   Maybe your dnSpy is out of date. Make sure you have completely decompress the whole "Managed" directory, instead of just decompress the "Assembly-CSharp.dll".
-2. **Why my game crashes after inject this dll?  
+2. **Why my game crashes after inject this dll?**  
   Make sure to use the correct version. You can open "mscorlib.dll" with dnSpy. You should use "Android-mscorlib-2.0.0.0" if its version is 2.0.0.0, otherwise you can use master branch. Another possibility is that the game has some kind of anti-injection mechanism.
-3. **Is it capable for il2cpp-backend games?  
+3. **Is it capable for il2cpp-backend games?**  
   No.
 
 # Branches：
