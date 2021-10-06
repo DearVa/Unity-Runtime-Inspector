@@ -29,21 +29,21 @@ namespace InGameDebugger {
 			inputText.AddComponent<SceneViewerFlag>();
 			inputText.transform.SetParent(xInput.transform);
 			var inputTextT = inputText.AddComponent<Text>();
-			inputTextT.font = ViewerCreater.font;
-			inputTextT.fontSize = ViewerCreater.fontSize;
+			inputTextT.font = ViewerCreator.font;
+			inputTextT.fontSize = ViewerCreator.FontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;
 			inputTextT.alignment = TextAnchor.MiddleCenter;
 			var inputTextR = inputText.GetComponent<RectTransform>();
 			inputTextR.anchoredPosition = Vector2.zero;
-			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 
 			xInput.AddComponent<Image>();
 			var inputR = xInput.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
-			inputR.anchoredPosition = new Vector2(0, ViewerCreater.size);
+			inputR.anchoredPosition = new Vector2(0, ViewerCreator.Size);
 			xInputI = xInput.AddComponent<InputField>();
 			xInputI.textComponent = inputTextT;
 			xInputI.keyboardType = TouchScreenKeyboardType.NumbersAndPunctuation;
@@ -66,11 +66,11 @@ namespace InGameDebugger {
 				xInput.GetComponent<InputField>().text = vector3.x.ToString();
 			});
 			xInput.GetComponent<EventTrigger>().triggers.Add(xDrag);
-			xInputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+			xInputI.onEndEdit.AddListener(str => {
 				xEditing = false;
 				vector3 = new Vector3(float.Parse(str), vector3.y, vector3.z);
 				set(vector3);
-			}));
+			});
 
 			var yInput = Instantiate(xInput, transform);
 			yInput.name = "YInput";
@@ -86,7 +86,7 @@ namespace InGameDebugger {
 			var yDrag = new EventTrigger.Entry() {
 				eventID = EventTriggerType.Drag
 			};
-			yDrag.callback.AddListener((data) => {
+			yDrag.callback.AddListener(data => {
 				vector3 = new Vector3(vector3.x, vector3.y + (data.currentInputModule.input.mousePosition.x - yBegin) / 10, vector3.z);
 				set(vector3);
 				yBegin = data.currentInputModule.input.mousePosition.x;
@@ -94,15 +94,15 @@ namespace InGameDebugger {
 			});
 			yInput.GetComponent<EventTrigger>().triggers.Add(yDrag);
 			yInputI = yInput.GetComponent<InputField>();
-			yInputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+			yInputI.onEndEdit.AddListener(str => {
 				yEditing = false;
 				vector3 = new Vector3(vector3.x, float.Parse(str), vector3.z);
 				set(vector3);
-			}));
+			});
 
 			var zInput = Instantiate(xInput, transform);
 			zInput.name = "ZInput";
-			zInput.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -ViewerCreater.size);
+			zInput.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -ViewerCreator.Size);
 			var zDown = new EventTrigger.Entry() {
 				eventID = EventTriggerType.PointerDown
 			};
@@ -122,11 +122,11 @@ namespace InGameDebugger {
 			});
 			zInput.GetComponent<EventTrigger>().triggers.Add(zDrag);
 			zInputI = zInput.GetComponent<InputField>();
-			zInputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+			zInputI.onEndEdit.AddListener(str => {
 				zEditing = false;
 				vector3 = new Vector3(vector3.x, vector3.y, float.Parse(str));
 				set(vector3);
-			}));
+			});
 		}
 
 		void Update() {

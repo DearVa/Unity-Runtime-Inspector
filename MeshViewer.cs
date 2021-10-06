@@ -23,11 +23,13 @@ namespace InGameDebugger {
 			}
 			var scroll = Input.GetAxis("Mouse ScrollWheel");
 			if (scroll < 0) {
-				if (cam.fieldOfView <= 100)
+				if (cam.fieldOfView <= 100) {
 					cam.fieldOfView += 2;
+				}
 			} else if (scroll > 0) {
-				if (cam.fieldOfView > 40)
+				if (cam.fieldOfView > 40) {
 					cam.fieldOfView -= 2;
+				}
 			}
 		}
 

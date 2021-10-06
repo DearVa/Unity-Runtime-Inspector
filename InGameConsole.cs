@@ -1,22 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 using System.Reflection;
 using Mono.CSharp;
 
 namespace InGameDebugger {
 	public class InGameConsole : MonoBehaviour {
+		public static InGameConsole Instance;
+
 		private InputField codeInputI;
 		private Text outputT;
 		private Evaluator evaluator;
 		private RectTransform outputTR, viewportR;
 		private readonly StringBuilder buffer = new StringBuilder();
+		private readonly LinkedList<string> commandList = new LinkedList<string>();
 
-		void Start() {
+		private LinkedListNode<string> NowCommand {
+			set {
+				nowCommand = value;
+				codeInputI.text = nowCommand == null ? string.Empty : nowCommand.Value;
+			}
+		}
+
+		private LinkedListNode<string> nowCommand;
+
+		void Update() {
+			if (codeInputI.isFocused && commandList.Count > 0) {
+				if (Input.GetKeyDown(KeyCode.UpArrow)) {
+					NowCommand = nowCommand == null ? commandList.Last : nowCommand.Previous;
+				} else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+					NowCommand = nowCommand == null ? commandList.First : nowCommand.Next;
+				}
+			}
+		}
+
+		void Awake() {
 			try {
+				Instance = this;
+
 				if (GetComponent<SceneViewerFlag>() == null) {
 					gameObject.AddComponent<SceneViewerFlag>();
 				}
@@ -25,7 +49,8 @@ namespace InGameDebugger {
 					gameObject.AddComponent<RectTransform>();
 				}
 
-				gameObject.AddComponent<Image>().color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
+				var color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
+				gameObject.AddComponent<Image>().color = color;
 
 				var thisR = GetComponent<RectTransform>();
 				thisR.anchorMin = new Vector2(0.5f, 0);
@@ -38,26 +63,26 @@ namespace InGameDebugger {
 				var codeInput = new GameObject("CodeInput");
 				codeInput.AddComponent<SceneViewerFlag>();
 				codeInput.transform.SetParent(transform);
-				codeInput.AddComponent<Image>().color = Color.white;
+				codeInput.AddComponent<Image>().color = color;
 				var codeInputR = codeInput.GetComponent<RectTransform>();
 				codeInputR.anchorMin = Vector2.zero;
 				codeInputR.anchorMax = Vector2.right;
 				codeInputR.pivot = new Vector2(0.5f, 0);
 				codeInputR.anchoredPosition = Vector2.zero;
 				codeInputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				codeInputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size);
+				codeInputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size);
 				var codeInputText = new GameObject("Text");
 				codeInputText.transform.SetParent(codeInput.transform);
 				var codeInputTextT = codeInputText.AddComponent<Text>();
-				codeInputTextT.font = ViewerCreater.font;
-				codeInputTextT.fontSize = ViewerCreater.fontSize;
+				codeInputTextT.font = ViewerCreator.font;
+				codeInputTextT.fontSize = ViewerCreator.FontSize;
 				codeInputTextT.color = Color.black;
 				var codeInputTextR = codeInputText.GetComponent<RectTransform>();
 				codeInputTextR.anchorMin = Vector2.zero;
 				codeInputTextR.anchorMax = Vector2.one;
 				codeInputTextR.pivot = new Vector2(0.5f, 0.5f);
 				codeInputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width - 10);
-				codeInputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size - 10);
+				codeInputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size - 10);
 				codeInputTextR.anchoredPosition = Vector2.zero;
 
 				var output = new GameObject("Output");
@@ -69,7 +94,7 @@ namespace InGameDebugger {
 				outputR.pivot = new Vector2(0.5f, 1);
 				outputR.anchoredPosition = new Vector2(0, -10);
 				outputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				outputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - ViewerCreater.size - 120);
+				outputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - ViewerCreator.Size - 120);
 				var viewport = new GameObject("Viewport");
 				viewport.transform.parent = output.transform;
 				viewportR = viewport.AddComponent<RectTransform>();
@@ -78,14 +103,14 @@ namespace InGameDebugger {
 				viewportR.pivot = new Vector2(0, 1);
 				viewportR.anchoredPosition = Vector2.zero;
 				viewportR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Screen.width);
-				viewportR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - ViewerCreater.size - 120);
+				viewportR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Screen.height - ViewerCreator.Size - 120);
 				viewport.AddComponent<Mask>();
-				viewport.AddComponent<Image>().color = Color.white;
+				viewport.AddComponent<Image>().color = color;
 				var outputText = new GameObject("OutputText");
 				outputText.transform.parent = viewport.transform;
 				outputT = outputText.AddComponent<Text>();
-				outputT.font = ViewerCreater.font;
-				outputT.fontSize = ViewerCreater.fontSize;
+				outputT.font = ViewerCreator.font;
+				outputT.fontSize = ViewerCreator.FontSize;
 				outputT.color = Color.black;
 				outputT.text = "Output";
 				outputTR = outputText.GetComponent<RectTransform>();
@@ -125,8 +150,6 @@ namespace InGameDebugger {
 						case LogType.Exception:
 							WriteLine($"<color=#ee0000ff>UnityException:\n{log.message}</color>");
 							break;
-						default:
-							break;
 					}
 				};
 
@@ -135,9 +158,11 @@ namespace InGameDebugger {
 				var compilerContext = new CompilerContext(new CompilerSettings(), printer);
 				evaluator = new Evaluator(compilerContext);
 				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.CoreModule"));
+				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.PhysicsModule"));
 				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.UI"));
+				evaluator.ReferenceAssembly(Assembly.GetExecutingAssembly());
 				evaluator.Run("using System;using UnityEngine;using UnityEngine.UI;using UnityEngine.Events;using System.Reflection;using System.Collections;using System.Collections.Generic;");
-				codeInputI.onEndEdit.AddListener(new UnityAction<string>(str => {
+				codeInputI.onEndEdit.AddListener(str => {
 					if (str == "") {
 						return;
 					}
@@ -151,6 +176,11 @@ namespace InGameDebugger {
 							WriteLine($"{str}\n<color=#ff0000ff>{s}</color>");
 							return;
 						}
+						commandList.AddLast(str);
+						if (commandList.Count >= 128) {
+							commandList.RemoveFirst();
+						}
+						PlayerPrefs.SetString("InGameConsoleCommandHistory", string.Join("\n", commandList));
 						object result = null;
 						method.Invoke(ref result);
 						if (result == null) {
@@ -160,7 +190,13 @@ namespace InGameDebugger {
 					} catch (Exception e) {
 						WriteLine($"{str}\n<color=#ff0000ff>{e.Message}</color>"); 
 					}
-				}));
+				});
+
+				if (PlayerPrefs.HasKey("InGameConsoleCommandHistory")) {
+					foreach (var command in PlayerPrefs.GetString("InGameConsoleCommandHistory").Split('\n')) {
+						commandList.AddLast(command);
+					}
+				}
 			} catch (Exception e) {
 				Utils.LogError(e.ToString(), "Error in InGameConsole Start");
 			}

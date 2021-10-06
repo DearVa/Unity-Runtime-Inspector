@@ -18,27 +18,27 @@ namespace InGameDebugger {
 				gameObject.AddComponent<SceneViewerFlag>();
 			}
 
-			input = new GameObject("FloatInput");
+			input = new GameObject("StringInput");
 			input.AddComponent<SceneViewerFlag>();
 			input.transform.SetParent(transform);
 
-			var inputText = new GameObject("FloatInputText");
+			var inputText = new GameObject("StringInputText");
 			inputText.AddComponent<SceneViewerFlag>();
 			inputText.transform.SetParent(input.transform);
 			var inputTextT = inputText.AddComponent<Text>();
-			inputTextT.font = ViewerCreater.font;
-			inputTextT.fontSize = ViewerCreater.fontSize;
+			inputTextT.font = ViewerCreator.font;
+			inputTextT.fontSize = ViewerCreator.FontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;
 			inputTextT.alignment = TextAnchor.MiddleCenter;
 			var inputTextR = inputText.GetComponent<RectTransform>();
 			inputTextR.anchoredPosition = Vector2.zero;
-			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 
 			input.AddComponent<Image>();
 			var inputR = input.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 			inputR.anchoredPosition = Vector2.zero;
 			var inputI = input.AddComponent<InputField>();
@@ -46,14 +46,14 @@ namespace InGameDebugger {
 			var down = new EventTrigger.Entry() {
 				eventID = EventTriggerType.PointerDown
 			};
-			down.callback.AddListener((data) => {
+			down.callback.AddListener(_ => {
 				editing = true;
 			});
 			input.AddComponent<EventTrigger>().triggers.Add(down);
-			inputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+			inputI.onEndEdit.AddListener(str => {
 				editing = false;
 				set(str);
-			}));
+			});
 		}
 
 		void Update() {

@@ -29,19 +29,19 @@ namespace InGameDebugger {
 			inputText.AddComponent<SceneViewerFlag>();
 			inputText.transform.SetParent(input.transform);
 			var inputTextT = inputText.AddComponent<Text>();
-			inputTextT.font = ViewerCreater.font;
-			inputTextT.fontSize = ViewerCreater.fontSize;
+			inputTextT.font = ViewerCreator.font;
+			inputTextT.fontSize = ViewerCreator.FontSize;
 			inputTextT.supportRichText = false;
 			inputTextT.color = Color.black;
 			inputTextT.alignment = TextAnchor.MiddleCenter;
 			var inputTextR = inputText.GetComponent<RectTransform>();
 			inputTextR.anchoredPosition = Vector2.zero;
-			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputTextR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 
 			input.AddComponent<Image>();
 			var inputR = input.GetComponent<RectTransform>();
-			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreater.size * 0.8f);
+			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ViewerCreator.Size * 0.8f);
 			inputR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500);
 			inputR.anchoredPosition = Vector2.zero;
 			var inputI = input.AddComponent<InputField>();
@@ -69,7 +69,7 @@ namespace InGameDebugger {
 				input.GetComponent<InputField>().text = get().ToString();
 			});
 			input.GetComponent<EventTrigger>().triggers.Add(drag);
-			inputI.onEndEdit.AddListener(new UnityAction<string>((str) => {
+			inputI.onEndEdit.AddListener(str => {
 				editing = false;
 				var value = float.Parse(str);
 				if (value < minimum) {
@@ -78,7 +78,7 @@ namespace InGameDebugger {
 					value = maximum;
 				}
 				set(value);
-			}));
+			});
 		}
 
 		void Update() {
