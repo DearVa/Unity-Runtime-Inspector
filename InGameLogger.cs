@@ -33,7 +33,7 @@ namespace InGameDebugger {
 		}
 	}
 
-	public class InGameLogger : ILogger, ILogHandler {
+	public class InGameLogger : ILogger {
 		public static Action<Log> Logging = null; 
 
 		public InGameLogger(ILogHandler logHandler) {

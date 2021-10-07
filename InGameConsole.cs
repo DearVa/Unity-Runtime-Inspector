@@ -15,8 +15,13 @@ namespace InGameDebugger {
 		private Text outputT;
 		private Evaluator evaluator;
 		private RectTransform outputTR, viewportR;
+		private readonly LinkedList<string> outputList = new LinkedList<string>();
 		private readonly StringBuilder buffer = new StringBuilder();
 		private readonly LinkedList<string> commandList = new LinkedList<string>();
+
+		private StringWriter writer;
+		private StreamReportPrinter printer;
+		private int startIndex, endIndex, caretPosition;
 
 		private LinkedListNode<string> NowCommand {
 			set {
@@ -27,7 +32,33 @@ namespace InGameDebugger {
 
 		private LinkedListNode<string> nowCommand;
 
-		void Update() {
+		private void Update() {
+			if (Input.GetKeyDown(KeyCode.Return)) {
+				var str = codeInputI.text;
+				if (str == string.Empty) {
+					return;
+				}
+				try {
+					var method = evaluator.Compile(str);
+					writer.Flush();
+					var builder = writer.GetStringBuilder();
+					if (printer.ErrorsCount > 0) {
+						WriteLine($"{str}\n<color=#ff0000ff>{builder}</color>");
+						return;
+					}
+					builder.Clear();
+					object result = "Done";
+					method.Invoke(ref result);
+					commandList.AddLast(str);
+					if (commandList.Count >= 128) {
+						commandList.RemoveFirst();
+					}
+					PlayerPrefs.SetString("InGameConsoleCommandHistory", string.Join("\n", commandList));
+					WriteLine($"{str}\n<color=#00aa00ff>{result}</color>");
+				} catch (Exception e) {
+					WriteLine($"{str}\n<color=#ff0000ff>{e.Message}</color>");
+				}
+			}
 			if (codeInputI.isFocused && commandList.Count > 0) {
 				if (Input.GetKeyDown(KeyCode.UpArrow)) {
 					NowCommand = nowCommand == null ? commandList.Last : nowCommand.Previous;
@@ -37,7 +68,7 @@ namespace InGameDebugger {
 			}
 		}
 
-		void Awake() {
+		private void Awake() {
 			try {
 				Instance = this;
 
@@ -125,70 +156,152 @@ namespace InGameDebugger {
 				outputS.movementType = ScrollRect.MovementType.Clamped;
 				outputS.decelerationRate = 0.5f;
 				outputS.viewport = viewportR;
+				outputS.scrollSensitivity = 30f;
 
 				codeInputTextT.supportRichText = false;
 				codeInputI = codeInput.AddComponent<InputField>();
 				codeInputI.textComponent = codeInputTextT;
 
+				var autoComplete = new GameObject("AutoComplete");
+				autoComplete.transform.parent = transform;
+				var autoCompleteS = autoComplete.AddComponent<ScrollRect>();
+				var autoCompleteR = autoComplete.GetComponent<RectTransform>();
+				autoCompleteR.anchorMin = Vector2.zero;
+				autoCompleteR.anchorMax = Vector2.zero;
+				autoCompleteR.pivot = Vector2.zero;
+				autoCompleteR.anchoredPosition = new Vector2(0, 40);
+				autoCompleteR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+				autoCompleteR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
+				var aViewport = new GameObject("Viewport");
+				aViewport.transform.SetParent(autoCompleteR);
+				var aViewportR = aViewport.AddComponent<RectTransform>();
+				aViewportR.anchorMin = Vector2.zero;
+				aViewportR.anchorMax = Vector2.one;
+				aViewportR.pivot = new Vector2(0, 1);
+				aViewportR.anchoredPosition = Vector2.zero;
+				aViewportR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+				aViewportR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
+				aViewport.AddComponent<Mask>();
+				aViewport.AddComponent<Image>().color = color;
+				var content = new GameObject("Content");
+				content.transform.SetParent(aViewportR);
+				var contentR = content.AddComponent<RectTransform>();
+				contentR.anchorMin = Vector2.zero;
+				contentR.anchorMax = Vector2.one;
+				contentR.pivot = new Vector2(0, 1);
+				contentR.anchoredPosition = Vector2.zero;
+				contentR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+				contentR.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0);
+				AutoComplete.ScrollView = autoCompleteR;
+				AutoComplete.Content = contentR;
+				autoCompleteS.movementType = ScrollRect.MovementType.Clamped;
+				autoCompleteS.decelerationRate = 0.5f;
+				autoCompleteS.viewport = aViewportR;
+				autoCompleteS.content = contentR;
+				autoCompleteS.scrollSensitivity = 30f;
+
 				var type = typeof(Debug);
-				var s_Logger = type.GetField("s_Logger", BindingFlags.NonPublic | BindingFlags.Static);
-				s_Logger.SetValue(type, new InGameLogger(Debug.unityLogger.logHandler));
+				var sLogger = type.GetField("s_Logger", BindingFlags.NonPublic | BindingFlags.Static);
+				sLogger?.SetValue(type, new InGameLogger(Debug.unityLogger.logHandler));
 				InGameLogger.Logging = log => {
 					switch (log.logType) {
-						case LogType.Error:
-							WriteLine($"<color=#ee0000ff>UnityError:\n{log.message}</color>");
-							break;
-						case LogType.Assert:
-							WriteLine($"<color=#ee0000ff>UnityAssert:\n{log.message}</color>");
-							break;
-						case LogType.Warning:
-							WriteLine($"<color=#55dd00ff>UnityWarning:\n{log.message}</color>");
-							break;
-						case LogType.Log:
-							WriteLine($"<color=#aaaaaaff>UnityLog:\n{log.message}</color>");
-							break;
-						case LogType.Exception:
-							WriteLine($"<color=#ee0000ff>UnityException:\n{log.message}</color>");
-							break;
+					case LogType.Error:
+						WriteLine($"<color=#ee0000ff>UnityError:\n{log.message}</color>");
+						break;
+					case LogType.Assert:
+						WriteLine($"<color=#ee0000ff>UnityAssert:\n{log.message}</color>");
+						break;
+					case LogType.Warning:
+						WriteLine($"<color=#55dd00ff>UnityWarning:\n{log.message}</color>");
+						break;
+					case LogType.Log:
+						WriteLine($"<color=#444444ff>UnityLog:\n{log.message}</color>");
+						break;
+					case LogType.Exception:
+						WriteLine($"<color=#ee0000ff>UnityException:\n{log.message}</color>");
+						break;
 					}
 				};
 
-				var writer = new StringWriter();
-				var printer = new StreamReportPrinter(writer);
+				AutoComplete.Initialize();
+				AutoComplete.OnClick += AutoCompleteClick;
+				writer = new StringWriter();
+				printer = new StreamReportPrinter(writer);
 				var compilerContext = new CompilerContext(new CompilerSettings(), printer);
 				evaluator = new Evaluator(compilerContext);
-				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.CoreModule"));
-				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.PhysicsModule"));
-				evaluator.ReferenceAssembly(Assembly.Load("UnityEngine.UI"));
-				evaluator.ReferenceAssembly(Assembly.GetExecutingAssembly());
-				evaluator.Run("using System;using UnityEngine;using UnityEngine.UI;using UnityEngine.Events;using System.Reflection;using System.Collections;using System.Collections.Generic;");
-				codeInputI.onEndEdit.AddListener(str => {
-					if (str == "") {
+				foreach (var assembly in AutoComplete.Assemblies) {
+					evaluator.ReferenceAssembly(assembly);
+				}
+				evaluator.Run("using System;using UnityEngine;using UnityEngine.UI;using UnityEngine.Events;using System.Reflection;using System.Collections;using System.Collections.Generic;using System.Linq;using System.IO;using System.Text;");
+
+				codeInputI.onValueChanged.AddListener(str => {
+					caretPosition = codeInputI.caretPosition;
+					str = str.Substring(0, caretPosition);
+					if (str == string.Empty) {
+						autoComplete.SetActive(false);
 						return;
 					}
-					try {
-						var method = evaluator.Compile(str);
-						writer.Flush();
-						var builder = writer.GetStringBuilder();
-						var s = builder.ToString();
-						builder.Clear();
-						if (printer.ErrorsCount > 0) {
-							WriteLine($"{str}\n<color=#ff0000ff>{s}</color>");
-							return;
+					//autoCompleteR.anchoredPosition = new Vector2(codeInputI.caretPosition * ViewerCreator.FontSize, autoCompleteR.anchoredPosition.y);
+					var quo = false;
+					startIndex = 0;
+					for (var i = 0; i < str.Length; i++) {
+						if (str[i] == '"') {
+							quo = !quo;
 						}
-						commandList.AddLast(str);
-						if (commandList.Count >= 128) {
-							commandList.RemoveFirst();
+						if (str[i] == ';' || str[i] == '(' || str[i] == '[' || str[i] == '{' || str[i] == ','
+							|| str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/' || str[i] == '='
+							|| str[i] == '|' || str[i] == '&' || str[i] == ':' || str[i] == '<' || str[i] == '>') {
+							if (!quo) {
+								startIndex = i + 1;
+							}
 						}
-						PlayerPrefs.SetString("InGameConsoleCommandHistory", string.Join("\n", commandList));
-						object result = null;
-						method.Invoke(ref result);
-						if (result == null) {
-							result = "Done";
+					}
+					if (quo) {
+						return;
+					}
+					str = str.Substring(startIndex);  // 找到最后一个语句的位置，从此断开
+
+					endIndex = 0;
+					for (var i = 0; i < str.Length; i++) {
+						if (str[i] == '"') {
+							quo = !quo;
 						}
-						WriteLine($"{str}\n<color=#00aa00ff>{result}</color>");
-					} catch (Exception e) {
-						WriteLine($"{str}\n<color=#ff0000ff>{e.Message}</color>"); 
+						if (str[i] == '.') {
+							if (!quo && (i == str.Length - 1 || !char.IsDigit(str[i + 1]))) {
+								var flag = true;
+								for (var j = i + 1; j < str.Length; j++) {
+									if (!char.IsLetterOrDigit(str[j]) && str[j] != '_') {
+										flag = false;
+										break;
+									}
+								}
+								if (flag) {
+									endIndex = i; // 找到最后一个.的位置
+								}
+							}
+						}
+					}
+
+					if (endIndex == 0) {
+						AutoComplete.Update(null, str);
+					} else {
+						var prefix = str.Substring(0, endIndex);
+						var t = AutoComplete.ParseType(prefix);
+						if (t == null) {
+							var method = evaluator.Compile(prefix);
+							writer.Flush();
+							var builder = writer.GetStringBuilder();
+							if (printer.ErrorsCount > 0) {
+								return;
+							}
+							builder.Clear();
+							t = method.Method.ReturnType;
+							if (printer.ErrorsCount == 0 && t != typeof(void)) {
+								AutoComplete.Update(t, str.Substring(endIndex + 1));
+							}
+						} else {
+							AutoComplete.Update(t, str.Substring(endIndex + 1));
+						}
 					}
 				});
 
@@ -202,13 +315,24 @@ namespace InGameDebugger {
 			}
 		}
 
+		private void AutoCompleteClick(string str) {
+			codeInputI.Select();
+			codeInputI.text = codeInputI.text.Substring(0, startIndex + endIndex + 1) + str + codeInputI.text.Substring(caretPosition);
+		}
+
 		public void WriteLine(string message) {
-			buffer.AppendLine(message);
-			buffer.AppendLine();
-			outputT.text = buffer.ToString();
-			if (outputTR.rect.height > viewportR.rect.height) {
-				outputTR.anchoredPosition = new Vector2(0, outputTR.rect.height - viewportR.rect.height);
+			outputList.AddFirst(message);
+			if (outputList.Count >= 128) {
+				outputList.RemoveLast();
 			}
+			buffer.Clear();
+			foreach (var output in outputList) {
+				buffer.AppendLine(output);
+			}
+			outputT.text = buffer.ToString();
+			//if (outputTR.rect.height > viewportR.rect.height) {
+			//	outputTR.anchoredPosition = new Vector2(0, outputTR.rect.height - viewportR.rect.height);
+			//}
 		}
 	}
 }

@@ -235,6 +235,7 @@ namespace InGameDebugger {
 				decompilerS.movementType = ScrollRect.MovementType.Clamped;
 				decompilerS.decelerationRate = 0.5f;
 				decompilerS.viewport = viewportR;
+				decompilerS.scrollSensitivity = 10f;
 				decompiler.SetActive(false);
 
 				var meshViewerObj = new GameObject("MeshViewer");

@@ -4,6 +4,7 @@ using System.IO;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
+using System.Collections.Generic;
 
 namespace InGameDebugger {
 	public static class Utils {
@@ -36,6 +37,15 @@ namespace InGameDebugger {
 			var decompiler = new CSharpDecompiler(fileName, new DecompilerSettings() { ThrowOnAssemblyResolveErrors = false });
 			var name = new FullTypeName(type.FullName);
 			return decompiler.DecompileTypeAsString(name);
+		}
+
+		public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) {
+			var seenKeys = new HashSet<TKey>();
+			foreach (var element in source) {
+				if (seenKeys.Add(keySelector(element))) {
+					yield return element;
+				}
+			}
 		}
 	}
 }
