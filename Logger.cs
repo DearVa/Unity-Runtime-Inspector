@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
 	public class Log {
 		public LogType logType;
 		public string tag;
@@ -33,10 +33,10 @@ namespace InGameDebugger {
 		}
 	}
 
-	public class InGameLogger : ILogger {
+	public class Logger : ILogger {
 		public static Action<Log> Logging = null; 
 
-		public InGameLogger(ILogHandler logHandler) {
+		public Logger(ILogHandler logHandler) {
 			this.logHandler = logHandler;
 			logEnabled = true;
 			filterLogType = LogType.Log;

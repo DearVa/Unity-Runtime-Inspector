@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameDebugger {
-	public class EditLine : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class EditLine : MonoBehaviour {
 		public Button funcBtn;
 		public Text nameText, label;
 		public EditGameObject editGameObject;

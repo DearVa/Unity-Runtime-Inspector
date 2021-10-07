@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using System;
 using UnityEngine.EventSystems;
-using System.Reflection;
 
-namespace InGameDebugger {
-	public class FloatEditor : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class FloatEditor : MonoBehaviour {
 		public Func<float> get;
 		public Action<float> set;
 		public float minimum;

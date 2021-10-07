@@ -9,8 +9,8 @@ using UnityEngine.Rendering;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace InGameDebugger {
-	public class SceneViewer : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class SceneViewer : MonoBehaviour {
 		private readonly List<EditGameObject> editGameObjects = new List<EditGameObject>();
 		private GameObject[] editLines;
 		private GameObject inspectorObj;
@@ -176,7 +176,7 @@ namespace InGameDebugger {
 				backBtnR.anchorMax = Vector2.one;
 				backBtnR.pivot = Vector2.one;
 				backBtnR.anchoredPosition = new Vector2(0, 100);
-				backBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 310);
+				backBtnR.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 315);
 
 				var backText = new GameObject("BackText");
 				backText.AddComponent<SceneViewerFlag>();
@@ -472,7 +472,7 @@ namespace InGameDebugger {
 			buttonTT.alignment = TextAnchor.MiddleCenter;
 			buttonTT.font = ViewerCreator.font;
 			buttonTT.fontSize = ViewerCreator.FontSize;
-			buttonT.AddComponent<Updater>().Action = () => buttonTT.text = get();
+			buttonT.AddComponent<Updater>().action = () => buttonTT.text = get();
 			var buttonB = button.AddComponent<Button>();
 			buttonB.onClick.AddListener(() => onClick?.Invoke());
 			offset -= ViewerCreator.Size * 1.2f;

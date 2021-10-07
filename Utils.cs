@@ -6,8 +6,8 @@ using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.TypeSystem;
 using System.Collections.Generic;
 
-namespace InGameDebugger {
-	public static class Utils {
+namespace RuntimeInspector {
+	internal static class Utils {
 		public static void LogError(string message, string title) {
 			var fn = $"{Application.persistentDataPath}/{DateTime.Now:yyyy-MM-dd}.txt";
 			if (File.Exists(fn)) {

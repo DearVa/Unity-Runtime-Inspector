@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using System;
 using UnityEngine.EventSystems;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
 
 	public class IntEditor : MonoBehaviour {
 		public Func<int> get;

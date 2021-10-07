@@ -4,8 +4,8 @@
     <TargetFramework>net45</TargetFramework>
     <Authors>Dear.Va</Authors>
     <Company>Dear.Va's Studio</Company>
-    <AssemblyName>InGameDebugger</AssemblyName>
-    <RootNamespace>InGameDebugger</RootNamespace>
+    <AssemblyName>RuntimeInspector</AssemblyName>
+    <RootNamespace>RuntimeInspector</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

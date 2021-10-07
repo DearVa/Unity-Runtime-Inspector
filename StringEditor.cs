@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 using System;
 using UnityEngine.EventSystems;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
 
 	public class StringEditor : MonoBehaviour {
 		public Func<string> get;

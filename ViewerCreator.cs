@@ -1,12 +1,10 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
-namespace InGameDebugger {
-	public class ViewerCreator : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class ViewerCreator : MonoBehaviour {
 		public static Font font;
 
 		public const float Size = 40f, TopBtnWidth = 150f, TopBtnHeight = 50f;
@@ -120,7 +118,7 @@ namespace InGameDebugger {
 
 				var console = new GameObject("Console");
 				console.transform.SetParent(viewerCanvas.transform);
-				console.AddComponent<InGameConsole>();
+				console.AddComponent<Console>();
 				console.SetActive(false);
 
 				pauseBtn.AddComponent<Button>().onClick.AddListener(() => {

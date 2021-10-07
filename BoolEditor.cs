@@ -1,10 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 
-namespace InGameDebugger {
-	public class BoolEditor : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class BoolEditor : MonoBehaviour {
 		public Func<bool> get;
 		public Action<bool> set;
 

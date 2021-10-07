@@ -5,8 +5,8 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGameDebugger {
-	public class AutoComplete : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class AutoComplete {
 		public static RectTransform ScrollView, Content;
 		public static event Action<string> OnClick;
 		private static readonly List<Text> Children = new List<Text>();
@@ -83,9 +83,16 @@ namespace InGameDebugger {
 		}
 
 		public static void Update(Type type, string str) {
+			if (string.IsNullOrEmpty(str)) {
+				return;
+			}
 			str = str.ToLower();
 			if (type == null) {
-				UpdateScrollRect(Types.Values.Where(t => t.ReflectedType == null && t.Name.ToLower().Contains(str)).DistinctBy(t => t.Name).OrderBy(t => t.Name).ToArray());
+				if (str[0] == '#') {
+					UpdateScrollRect(ConsoleCommand.Commands.Keys.Where(c => c.Contains(str)).OrderBy(c => c).ToArray());
+				} else {
+					UpdateScrollRect(Types.Values.Where(t => t.ReflectedType == null && t.Name.ToLower().Contains(str)).DistinctBy(t => t.Name).OrderBy(t => t.Name).ToArray());
+				}
 			} else {
 				UpdateScrollRect(type.GetMembers().Where(i => i.Name.ToLower().Contains(str)).DistinctBy(i => i.Name).OrderBy(i => i.Name).ToArray());
 			}
@@ -155,6 +162,10 @@ namespace InGameDebugger {
 				case EventInfo e:
 					Children[i].text = e.Name;
 					Children[i].color = EventColor;
+					break;
+				case string s:
+					Children[i].text = s;
+					Children[i].color = Color.red;
 					break;
 				}
 				Children[i].rectTransform.parent.gameObject.SetActive(true);

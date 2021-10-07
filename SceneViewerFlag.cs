@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-namespace InGameDebugger {
-	public class SceneViewerFlag : MonoBehaviour {
+
+namespace RuntimeInspector {
+	internal class SceneViewerFlag : MonoBehaviour {
 		private void Awake() {
 			DontDestroyOnLoad(gameObject);
 		}

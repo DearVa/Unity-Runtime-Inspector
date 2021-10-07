@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-namespace InGameDebugger {
-	public class MeshViewer : MonoBehaviour {
+namespace RuntimeInspector {
+	internal class MeshViewer : MonoBehaviour {
 		public Transform target;
 		public MeshFilter MeshFilter;
 		public MeshRenderer MeshRenderer;

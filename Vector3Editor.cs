@@ -1,13 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using System;
 using UnityEngine.EventSystems;
-using System.Reflection;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
 
-	public class Vector3Editor : MonoBehaviour {
+	internal class Vector3Editor : MonoBehaviour {
 		public Func<Vector3> get;
 		public Action<Vector3> set;
 

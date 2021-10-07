@@ -7,9 +7,9 @@ using UnityEngine.UI;
 using System.Reflection;
 using Mono.CSharp;
 
-namespace InGameDebugger {
-	public class InGameConsole : MonoBehaviour {
-		public static InGameConsole Instance;
+namespace RuntimeInspector {
+	internal class Console : MonoBehaviour {
+		public static Console Instance;
 
 		private InputField codeInputI;
 		private Text outputT;
@@ -32,6 +32,18 @@ namespace InGameDebugger {
 
 		private LinkedListNode<string> nowCommand;
 
+		public CompiledMethod Compile(string str) {
+			var method = evaluator.Compile(str);
+			writer.Flush();
+			var builder = writer.GetStringBuilder();
+			var msg = builder.ToString();
+			builder.Clear();
+			if (printer.ErrorsCount > 0) {
+				throw new Exception(msg);
+			}
+			return method;
+		}
+
 		private void Update() {
 			if (Input.GetKeyDown(KeyCode.Return)) {
 				var str = codeInputI.text;
@@ -39,19 +51,79 @@ namespace InGameDebugger {
 					return;
 				}
 				try {
-					var method = evaluator.Compile(str);
-					writer.Flush();
-					var builder = writer.GetStringBuilder();
-					if (printer.ErrorsCount > 0) {
-						WriteLine($"{str}\n<color=#ff0000ff>{builder}</color>");
-						return;
-					}
-					builder.Clear();
 					object result = "Done";
-					method.Invoke(ref result);
-					commandList.AddLast(str);
-					if (commandList.Count >= 128) {
-						commandList.RemoveFirst();
+					if (str[0] == '#') {
+						var left = str.IndexOf('(');
+						var right = str.LastIndexOf(')');
+						if (left == -1 || right == -1) {
+							throw new Exception("Invalid Console Command Usage.");
+						}
+						var command = str.Substring(0, left);
+						if (!ConsoleCommand.Commands.TryGetValue(command, out var value)) {
+							throw new Exception("Unknown Console Command.");
+						}
+						int f1 = 0, f2 = 0, f3 = 0;
+						bool f4 = false, f5 = false;
+						var args = new List<string>();
+						var arg = str.Substring(left + 1, right - left - 1);
+						for (var i = 0; i < arg.Length; i++) {
+							switch (arg[i]) {
+							case '(':
+								f1++;
+								break;
+							case ')':
+								f1--;
+								if (f1 < 0) {
+									throw new Exception("Unexpected ).");
+								}
+								break;
+							case '[':
+								f2++;
+								break;
+							case ']':
+								f2--;
+								if (f2 < 0) {
+									throw new Exception("Unexpected ].");
+								}
+								break;
+							case '{':
+								f3++;
+								break;
+							case '}':
+								f3--;
+								if (f3 < 0) {
+									throw new Exception("Unexpected }.");
+								}
+								break;
+							case '"':
+								f4 = !f4;
+								break;
+							case '\'':
+								f5 = !f5;
+								break;
+							case ',':
+								if (f1 == 0 && f2 == 0 && f3 == 0 && !f4 && !f5) {
+									args.Add(arg.Substring(0, i));
+									arg = arg.Substring(i + 1);
+									i = 0;
+								}
+								break;
+							}
+						}
+						args.Add(arg);
+						var r = value.Invoke(args.ToArray());
+						if (r != null) {
+							result = r;
+						}
+					} else {
+						var method = Compile(str);
+						method.Invoke(ref result);
+					}
+					if (commandList.Count == 0 || (commandList.Count > 0 && commandList.Last.Value != str)) {
+						commandList.AddLast(str);
+						if (commandList.Count >= 128) {
+							commandList.RemoveFirst();
+						}
 					}
 					PlayerPrefs.SetString("InGameConsoleCommandHistory", string.Join("\n", commandList));
 					WriteLine($"{str}\n<color=#00aa00ff>{result}</color>");
@@ -202,8 +274,8 @@ namespace InGameDebugger {
 
 				var type = typeof(Debug);
 				var sLogger = type.GetField("s_Logger", BindingFlags.NonPublic | BindingFlags.Static);
-				sLogger?.SetValue(type, new InGameLogger(Debug.unityLogger.logHandler));
-				InGameLogger.Logging = log => {
+				sLogger?.SetValue(type, new Logger(Debug.unityLogger.logHandler));
+				Logger.Logging = log => {
 					switch (log.logType) {
 					case LogType.Error:
 						WriteLine($"<color=#ee0000ff>UnityError:\n{log.message}</color>");
@@ -225,6 +297,9 @@ namespace InGameDebugger {
 
 				AutoComplete.Initialize();
 				AutoComplete.OnClick += AutoCompleteClick;
+
+				ConsoleCommand.Initialize();
+
 				writer = new StringWriter();
 				printer = new StreamReportPrinter(writer);
 				var compilerContext = new CompilerContext(new CompilerSettings(), printer);
@@ -311,13 +386,13 @@ namespace InGameDebugger {
 					}
 				}
 			} catch (Exception e) {
-				Utils.LogError(e.ToString(), "Error in InGameConsole Start");
+				Utils.LogError(e.ToString(), "Error in Console Start");
 			}
 		}
 
 		private void AutoCompleteClick(string str) {
 			codeInputI.Select();
-			codeInputI.text = codeInputI.text.Substring(0, startIndex + endIndex + 1) + str + codeInputI.text.Substring(caretPosition);
+			codeInputI.text = codeInputI.text.Substring(0, startIndex + endIndex) + str + codeInputI.text.Substring(caretPosition);
 		}
 
 		public void WriteLine(string message) {

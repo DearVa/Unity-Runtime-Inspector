@@ -1,10 +1,14 @@
+![issues|welcome](https://img.shields.io/badge/issues-welcome-brightgreen)
+![pulls|welcome](https://img.shields.io/badge/pulls-welcome-brightgreen)
+
 # What can it do?
-Enable you to debug a running Unity game just like in Unity.
+Enable you to inspect a running Unity game just like in Unity.
 
 # Features
 * Hierarchy - You can browse all GameObjects in the scene
 * Inspector - You can browse and modify the components of a GameObject
-* Console - You can run C# code runtime, with AutoComplete
+* Console - You can run C# code runtime, with AutoComplete. Input history will be save, use ↑/↓ to switch.
+* Commands - You can use some pre-defined commands in Console, such as #bind
 
 # Screen shots
 ![Preview_Hierarchy](https://raw.githubusercontent.com/DearVa/UnityInGameDbg/master/img/Preview_Hierarchy.png)
@@ -12,11 +16,34 @@ Enable you to debug a running Unity game just like in Unity.
 ![Preview_ViewMesh](https://raw.githubusercontent.com/DearVa/UnityInGameDbg/master/img/Preview_ViewMesh.png)
 ![Preview_InGameConsole](https://raw.githubusercontent.com/DearVa/UnityInGameDbg/master/img/Preview_InGameConsole.jpg)
 
-# How to use it?
-1. Compile and Put "InGameDebugger.dll" and "Mono.CSharp.dll" into AUnityGame\AUnityGame_Data\Managed Directory.
-2. Open Assembly-CSharp.dll with dnspy(https://github.com/dnSpy/dnSpy), remember to make a backup!
-3. Edit a Management-like class such as "Game" or "UI", disassemble it and add the "InGameDebug.dll" reference, then add "InGameDebug.ViewerCreator.Create();" in Start() or Awake() method.
+# Quick Start
+1. Compile and Put **"InGameDebugger.dll"**, **"ICSharpCode.Decompiler.dll"** and **"Mono.CSharp.dll"** into **AUnityGame\AUnityGame_Data\Managed** Directory (**"Humanizer.dll", "System.Collections.Immutable.dll" and "System.Reflection.Metadata.dll" maybe also necessary**).
+2. Open **Assembly-CSharp.dll** with dnspy(https://github.com/dnSpy/dnSpy), remember to make a backup **(Most games use this assembly as main dll, some uses other name, youcan find it by yourself**)!
+3. Edit a Management-like class such as "Manager", "Game" or "UI", disassemble it and add the "InGameDebugger.dll" reference, then add "InGameDebug.ViewerCreator.Create();" in Start() or Awake() method.
 4. Compile and save it. If there's nothing wrong, when you enter the game, three buttons will be displayed above the screen.
+
+
+# Console Commands
+**All Console Commands starts with #. Nesting is not supported so far, and you can only input 1 command at a time.**
+* **#bind**\
+  Bind a key to a C# expression.\
+  Example:
+  ```#bind(R, Camera.main.transform.Rotate(new Vector3(0, 10f, 0)))```\
+  When you press W key, Camera.main will Ratate.
+
+* **#unbind**\
+  Unbind a key.\
+  Example:
+  ```#unbind(R)```
+
+* **#listObj [Doing]**\
+  List all GameObjects in the scene to Console.
+
+* **#highlight [Doing]**\
+  Highlight a GameObject in Hierarchy.
+
+* **#inspect [Doing]**\
+  Inspect a GameObject in Inspector.
 
 # Q&A
 1. **Why my dnSpy says "You must add a reference to assembly 'UnityEngine.CoreModule.dll'" when compiling?**  

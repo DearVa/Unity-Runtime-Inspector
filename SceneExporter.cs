@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
 	//public class SceneExporter : MonoBehaviour {
 	//	private List<MGameObject> gameObjs = new List<MGameObject>();
 

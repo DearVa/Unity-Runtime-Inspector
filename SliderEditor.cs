@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace InGameDebugger {
+namespace RuntimeInspector {
     public class SliderEditor : MonoBehaviour {
         // Start is called before the first frame update
         void Start() {

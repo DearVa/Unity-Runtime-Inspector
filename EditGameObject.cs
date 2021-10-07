@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
-namespace InGameDebugger {
-	public class EditGameObject {
+namespace RuntimeInspector {
+	internal class EditGameObject {
 		public GameObject gameObject;
 		public List<EditGameObject> children = new List<EditGameObject>();
 		public EditGameObject father;
