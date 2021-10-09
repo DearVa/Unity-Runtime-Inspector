@@ -17,6 +17,10 @@ Enable you to inspect a running Unity game just like in Unity.
 ![Preview_InGameConsole](https://raw.githubusercontent.com/DearVa/UnityInGameDbg/master/img/Preview_InGameConsole.jpg)
 
 # Quick Start
+⭐Auto Inject⭐
+-------
+Download [Auto Injector release](https://github.com/DearVa/Unity-Runtime-Inspector/releases/download/v2.0.0/Build.zip).
+
 ✅Better Inject Method
 -------
 1. Compile and Put **"RuntimeInspector.dll"**, **"ICSharpCode.Decompiler.dll"** and **"Mono.CSharp.dll"** into **AUnityGame\AUnityGame_Data\Managed** Directory **("Humanizer.dll", "System.Collections.Immutable.dll" and "System.Reflection.Metadata.dll" maybe also necessary)**.
