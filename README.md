@@ -1,3 +1,5 @@
+# [Obsoleted] Please use [UnityExplorer](https://github.com/sinai-dev/UnityExplorer) instead.
+
 ![issues|welcome](https://img.shields.io/badge/issues-welcome-brightgreen)
 ![pulls|welcome](https://img.shields.io/badge/pulls-welcome-brightgreen)
 
